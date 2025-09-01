@@ -1,0 +1,11 @@
+{
+  "vs-kubernetes": {
+    "vs-kubernetes.kubectl-path": "/usr/local/bin/kubectl",
+    "vs-kubernetes.helm-path": "/usr/local/bin/helm",
+    "vs-kubernetes.minikube-path": "",
+    "vs-kubernetes.draft-path": "",
+    "vs-kubernetes.kubectlVersioning": "user-provided"
+  },
+  "kubernetes.kubectl-path": "/usr/local/bin/kubectl",
+  "kubernetes.helm-path": "/usr/local/bin/helm"
+}

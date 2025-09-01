@@ -1,0 +1,30 @@
+{
+  "name": "Jumpstarter Server Dev",
+  "dockerFile": "Dockerfile",
+  "forwardPorts": [8082, 8083, 5080, 5443],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "latest",
+      "helm": "latest",
+      "minikube": "none"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup-dind.sh",
+  "postStartCommand": "kubectl version --client || echo 'kubectl will be available after container rebuild'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-json"
+      ],
+      "settings": {
+        "vs-kubernetes.kubectl-path": "/usr/local/bin/kubectl",
+        "vs-kubernetes.helm-path": "/usr/local/bin/helm",
+        "kubernetes.kubectl-path": "/usr/local/bin/kubectl",
+        "kubernetes.helm-path": "/usr/local/bin/helm"
+      }
+    }
+  }
+}
