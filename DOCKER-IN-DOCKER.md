@@ -40,7 +40,7 @@ Nach dem Neustart läuft automatisch das neue Setup:
 ### 3. Testen
 Nach dem Setup können Sie testen:
 ```bash
-./test-dind.sh
+./scripts/test.sh
 ```
 
 ## Zugriff auf Services

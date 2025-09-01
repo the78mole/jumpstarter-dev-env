@@ -1,0 +1,25 @@
+[project]
+name = "jumpstarter-examples"
+version = "0.1.0"
+description = "Jumpstarter Server Development Examples"
+requires-python = ">=3.12"
+dependencies = [
+    "jumpstarter-cli",
+    "jumpstarter-driver-opendal", 
+    "jumpstarter-driver-power",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "black",
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']

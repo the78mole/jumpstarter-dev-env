@@ -1,0 +1,22 @@
+{
+    "id": "uv",
+    "version": "1.0.0",
+    "name": "uv (Python Package Manager)",
+    "description": "Installs uv, an extremely fast Python package and project manager",
+    "documentationURL": "https://docs.astral.sh/uv/",
+    "options": {
+        "version": {
+            "type": "string",
+            "proposals": [
+                "latest",
+                "0.4.18",
+                "0.4.17"
+            ],
+            "default": "latest",
+            "description": "Version of uv to install"
+        }
+    },
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/python"
+    ]
+}

@@ -8,6 +8,14 @@
       "version": "latest",
       "helm": "latest",
       "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12",
+      "installTools": true,
+      "optimize": true
+    },
+    "./features/uv": {
+      "version": "latest"
     }
   },
   "postCreateCommand": "bash .devcontainer/setup-dind.sh",

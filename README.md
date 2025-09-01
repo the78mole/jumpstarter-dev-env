@@ -54,20 +54,74 @@ With Docker-in-Docker, all services are directly accessible:
 ## Project Structure
 
 ```
-├── .devcontainer/          # DevContainer configuration
-│   ├── Dockerfile         # Custom image with tools
-│   ├── devcontainer.json  # VS Code DevContainer config
-│   └── setup-dind.sh      # Automatic setup script
-├── .vscode/               # VS Code settings
-├── scripts/               # Utility scripts
-│   ├── test.sh           # Comprehensive test suite
+jumpstarter-server/
+├── .devcontainer/         # DevContainer configuration
+│   ├── devcontainer.json # Docker-in-Docker + Python 3.12
+│   ├── Dockerfile        # Custom container with tools
+│   ├── features/uv/      # Custom uv package manager feature
+│   └── setup-dind.sh     # Automatic setup script
+├── .vscode/              # VS Code settings
+├── scripts/              # Utility scripts
+│   ├── test.sh          # Comprehensive test suite
 │   └── fix-vscode-kubectl.sh # kubectl troubleshooting
-├── kind-config.yaml       # Kind cluster configuration
-├── DOCKER-IN-DOCKER.md   # Setup documentation
-└── README.md             # This file
+├── examples/             # Python examples and exporters
+│   ├── create_exporter.py # Distributed mode example
+│   └── example-distributed.yaml # Exporter configuration
+├── logs/                 # Log files (gitignored)
+├── kind-config.yaml      # Kind cluster configuration
+├── pyproject.toml        # Python dependencies (uv)
+├── Makefile              # Development commands
+├── DOCKER-IN-DOCKER.md  # Setup documentation
+└── README.md            # This file
 ```
 
 ## Available Commands
+
+```bash
+# Development Environment
+make dev              # Complete setup (recommended)
+make status           # Check service status  
+make test             # Run connectivity tests
+
+# Service Management
+make setup            # Create Kind cluster + NGINX
+make deploy           # Install Jumpstarter via Helm
+make logs             # Show recent logs
+make teardown         # Remove Jumpstarter (keep cluster)
+make clean            # Delete entire cluster
+make restart          # Restart Jumpstarter services
+
+# Python & Exporter Development
+make python-setup     # Install Python dependencies
+make create-exporter  # Create example exporter
+make run-exporter     # Start the exporter (foreground)
+make client-shell     # Connect to exporter
+make python-shell     # Python REPL with Jumpstarter
+
+# Troubleshooting
+make troubleshoot     # Fix kubectl/VS Code issues
+make k9s              # Kubernetes dashboard
+```
+
+## Python Development
+
+The project includes Python 3.12 with uv package manager for Jumpstarter development:
+
+```bash
+# Setup Python environment
+make python-setup
+
+# Create and test an exporter
+make create-exporter
+make run-exporter     # In one terminal
+make client-shell     # In another terminal
+
+# Direct CLI usage
+uv run jmp --help
+uv run jmp admin create exporter my-exporter
+```
+
+## Manual Commands
 
 ```bash
 # Test everything

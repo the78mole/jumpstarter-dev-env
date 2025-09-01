@@ -99,6 +99,17 @@ echo "Base domain: jumpstarter.127.0.0.1.nip.io"
 echo "🌐 Web Interface: http://localhost:5080"
 echo "🔗 GRPC Controller: localhost:8082"
 echo "🔗 GRPC Router: localhost:8083"
+
+echo ""
+echo "=== Python Environment Setup ==="
+echo "Installing Jumpstarter Python dependencies..."
+if command -v uv >/dev/null 2>&1; then
+    echo "Using uv to install dependencies..."
+    uv sync --no-dev 2>/dev/null || echo "Note: Run 'uv sync' manually after container rebuild"
+else
+    echo "Note: uv will be available after container rebuild"
+fi
+
 echo ""
 echo "If ports are not accessible, you may need to restart the dev container"
 echo "for Docker-in-Docker to take effect."
