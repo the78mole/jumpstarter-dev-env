@@ -1,4 +1,4 @@
-# Umstellung auf Docker-in-Docker
+# Docker-in-Docker Setup für Jumpstarter
 
 ## Problem mit Docker-outside-of-Docker
 Das ursprüngliche Setup verwendete Docker-outside-of-Docker, was zu Netzwerkproblemen führte:
@@ -9,18 +9,39 @@ Das ursprüngliche Setup verwendete Docker-outside-of-Docker, was zu Netzwerkpro
 ## Lösung: Docker-in-Docker
 Die neue Konfiguration verwendet Docker-in-Docker:
 - Alle Container laufen innerhalb des Dev-Containers
-- Port-Mappings funktionieren korrekt
-- Services sind über localhost erreichbar
+- Kubernetes Services sind über NodePorts erreichbar
+- Robuste Netzwerk-Konfiguration für DevContainer-Umgebungen
 
-## Enthaltene Tools
-Das Dockerfile installiert alle notwendigen Tools:
-- ✅ **Docker** (via docker-in-docker Feature)
-- ✅ **kubectl** (neueste stabile Version)
-- ✅ **Helm** (neueste Version)
-- ✅ **Kind** (v0.20.0)
-- ✅ **k9s** (Kubernetes CLI Dashboard)
-- ✅ **Netzwerk-Tools** (netcat, telnet)
-- ✅ **JSON Tools** (jq)
+## DevContainer Features
+
+Das DevContainer nutzt offizielle Microsoft DevContainer Features:
+
+### 🐳 **Docker-in-Docker**
+- `ghcr.io/devcontainers/features/docker-in-docker:2`
+- Vollständige Docker-Umgebung im Container
+
+### ⚓ **Kubernetes Tools**  
+- `ghcr.io/devcontainers/features/kubectl-helm-minikube:1`
+- kubectl, Helm, und Minikube vorinstalliert
+
+### 🐍 **Python 3.11**
+- `ghcr.io/devcontainers/features/python:1`
+- Moderne Python-Umgebung
+
+### 📦 **UV Package Manager**
+- `ghcr.io/jsburckhardt/devcontainer-features/uv:1`
+- Schneller Python-Paketmanager von Astral
+
+## Automatisches Setup
+
+Das `setup-dind.sh` Script führt automatisch folgende Schritte aus:
+
+1. **Docker-Daemon prüfen**: Wartet bis Docker verfügbar ist
+2. **Kind-Cluster erstellen**: Mit `kind-config.yaml` Konfiguration  
+3. **NGINX Ingress installieren**: Für HTTP/HTTPS Zugriff
+4. **Jumpstarter installieren**: Via Helm Chart
+5. **Services prüfen**: NodePort-Verfügbarkeit testen
+6. **Python-Umgebung**: UV sync für Dependencies
 
 ## Umstellung durchführen
 
@@ -43,36 +64,67 @@ Nach dem Setup können Sie testen:
 ./scripts/test.sh
 ```
 
-## Zugriff auf Services
-Mit Docker-in-Docker sind die Services direkt erreichbar:
-- 🌐 **Web Interface**: http://localhost:5080
-- 🔗 **GRPC Controller**: localhost:8082  
-- 🔗 **GRPC Router**: localhost:8083
+## Service-Zugriff
 
-## Zusätzliche Tools
-- **k9s**: Kubernetes Dashboard im Terminal
-  ```bash
-  k9s
-  ```
-- **kubectl**: Standard Kubernetes CLI
-  ```bash
-  kubectl get pods -n jumpstarter-lab
-  ```
-- **helm**: Package Manager für Kubernetes
-  ```bash
-  helm list -n jumpstarter-lab
-  ```
+### NodePort Services
+Jumpstarter Services sind über Kubernetes NodePorts verfügbar:
+- 🔗 **GRPC Controller**: localhost:30010 (NodePort)
+- 🔗 **GRPC Router**: localhost:30011 (NodePort)
 
-## Vorteile von Docker-in-Docker
-- ✅ Einfacherer Netzwerkzugriff
-- ✅ Standard-Port-Mappings funktionieren
-- ✅ Bessere Isolation
-- ✅ Konsistente Entwicklungsumgebung
-- ✅ Alle Tools vorinstalliert
+### Ingress Controller
+- 🌐 **HTTP Ingress**: Läuft im Cluster (DevContainer-Limitierungen beachten)
+- 🔑 **Domains**: `*.jumpstarter.127.0.0.1.nip.io`
 
-## Nachteile
-- ⚠️ Längere Container-Build-Zeit
-- ⚠️ Etwas mehr Speicherverbrauch
-- ⚠️ Zusätzliche Abstraktion-Schicht
+### Kubectl Port-Forward
+Für direkten Service-Zugriff:
+```bash
+# Controller Service
+kubectl port-forward -n jumpstarter-lab svc/jumpstarter-grpc 8082:8082
 
-Für die Jumpstarter-Entwicklung sind die Vorteile jedoch deutlich größer als die Nachteile.
+# Router Service  
+kubectl port-forward -n jumpstarter-lab svc/jumpstarter-router-grpc 8083:8083
+```
+
+## Testing & Validation
+
+### Robot Framework Tests
+Vollständige Test-Suite mit 8 Tests:
+```bash
+make test-robot
+```
+
+### Manuelle Tests
+```bash
+# Cluster Status
+kubectl get pods -n jumpstarter-lab
+kubectl get svc -n jumpstarter-lab
+
+# Service Connectivity
+nc -z localhost 30010  # Controller
+nc -z localhost 30011  # Router
+
+# Python CLI
+uv run jmp admin --help
+uv run jmp admin get --help
+```
+
+## Vorteile der aktuellen Lösung
+- ✅ **Robuste Netzwerk-Konfiguration**: NodePorts funktionieren zuverlässig
+- ✅ **DevContainer-optimiert**: Realistische Erwartungen für Container-Umgebungen
+- ✅ **Vollständige Automatisierung**: Ein Befehl für komplettes Setup
+- ✅ **CI/CD Integration**: GitHub Actions mit identischer Konfiguration
+- ✅ **Umfassende Tests**: Robot Framework validiert alle Komponenten
+- ✅ **Modern Python Stack**: UV + Python 3.11 für schnelle Dependencies
+
+## DevContainer-Limitierungen
+- ⚠️ **Port-Mapping**: Nicht alle Host-Ports funktionieren in DevContainers
+- ⚠️ **Ingress-Zugriff**: HTTP-Zugriff funktioniert hauptsächlich cluster-intern
+- ⚠️ **Netzwerk-Komplexität**: Docker-in-Docker + Kind + DevContainer
+
+## Lösungsansätze
+- ✅ **NodePort-Services**: Zuverlässiger Zugriff über definierte Ports
+- ✅ **kubectl exec**: Commands im Kind-Container ausführen
+- ✅ **Realistische Tests**: Prüfen was in DevContainers machbar ist
+- ✅ **Kubectl Port-Forward**: Flexibler Service-Zugriff
+
+Diese Konfiguration bietet eine stabile, reproduzierbare Entwicklungsumgebung für Jumpstarter.

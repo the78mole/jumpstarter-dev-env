@@ -1,4 +1,4 @@
-.PHONY: help setup teardown deploy test status logs clean dev python-setup create-exporter run-exporter create-client exporter-shell k9s k9s-all
+.PHONY: help setup teardown deploy test status logs clean dev python-setup create-exporter run-exporter create-client exporter-shell k9s k9s-all test-robot test-robot-quick test-integration ci-test
 
 help: ## Zeigt diese Hilfe an
 	@echo "Jumpstarter Server - Make Commands:"
@@ -206,3 +206,35 @@ delete-exporter: ## Löscht den Beispiel-Exporter
 delete-client: ## Löscht den Client
 	@echo "🗑️ Deleting client..."
 	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin delete client hello --nointeractive 2>/dev/null || echo "Client doesn't exist"
+
+test-robot: python-setup ## Führt Robot Framework Integration Tests aus
+	@echo "🤖 Running Robot Framework integration tests..."
+	@mkdir -p tests/robot/results
+	@if command -v robot >/dev/null 2>&1; then \
+		echo "Using system Robot Framework..."; \
+		robot --outputdir tests/robot/results tests/robot/jumpstarter_integration.robot; \
+	else \
+		echo "Using uv Robot Framework..."; \
+		export PATH="$$HOME/.local/bin:$$PATH" && uv sync --extra testing && \
+		uv run robot --outputdir tests/robot/results tests/robot/jumpstarter_integration.robot; \
+	fi
+	@echo "📊 Test results available in tests/robot/results/"
+
+test-robot-quick: python-setup ## Führt Robot Framework Tests im Dry-Run Modus aus  
+	@echo "🏃 Quick Robot Framework validation..."
+	@if command -v robot >/dev/null 2>&1; then \
+		echo "Using system Robot Framework..."; \
+		robot --dryrun tests/robot/jumpstarter_integration.robot; \
+	else \
+		echo "Using uv Robot Framework..."; \
+		export PATH="$$HOME/.local/bin:$$PATH" && uv sync --extra testing && \
+		uv run robot --dryrun tests/robot/jumpstarter_integration.robot; \
+	fi
+	@echo "✅ Robot Framework tests validated"
+
+test-integration: dev test-robot ## Kompletter Integrations-Test: Setup + Robot Tests
+	@echo "🎯 Full integration test completed!"
+	@echo "📊 Check tests/robot/results/ for detailed test reports"
+
+ci-test: setup deploy test-robot ## CI-ähnlicher Test ohne komplettes dev setup  
+	@echo "🔄 CI-style test completed!"

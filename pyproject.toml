@@ -12,8 +12,14 @@ dependencies = [
 [tool.uv]
 dev-dependencies = [
     "pytest",
-    "black",
+    "black", 
     "ruff",
+]
+
+[dependency-groups]
+testing = [
+    "robotframework>=7.0",
+    "robotframework-requests>=0.9.6",
 ]
 
 [tool.ruff]

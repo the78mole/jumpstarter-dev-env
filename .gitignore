@@ -66,3 +66,17 @@ dmypy.json
 # Logs
 logs/
 *.log
+
+# Test results
+tests/robot/results/
+output.xml
+log.html
+report.html
+
+# Robot Framework temporary files
+robot.conf
+
+# Temporary files
+*.tmp
+*.bak
+*.backup

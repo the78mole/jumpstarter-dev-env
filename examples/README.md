@@ -4,9 +4,13 @@ This directory contains Python examples for working with Jumpstarter in distribu
 
 ## Quick Start
 
-1. **Setup Python environment:**
+1. **Setup development environment:**
    ```bash
-   make python-setup
+   # Ensure Jumpstarter is running (automatic in DevContainer)
+   make dev
+   
+   # Check services are accessible
+   make network-test
    ```
 
 2. **Create and test an exporter:**
@@ -39,11 +43,11 @@ This directory contains Python examples for working with Jumpstarter in distribu
 You can also use the Jumpstarter CLI directly:
 
 ```bash
-# Create exporter manually
+# Create exporter manually (using DevContainer services)
 uv run jmp admin create exporter my-exporter \
   --label example.com/board=foo \
   --save --insecure-tls-config \
-  --controller-endpoint localhost:8082
+  --controller-endpoint localhost:30010
 
 # Edit exporter config
 uv run jmp config exporter edit my-exporter
@@ -54,7 +58,7 @@ uv run jmp run --exporter my-exporter
 # Create client
 uv run jmp admin create client my-client \
   --save --unsafe --insecure-tls-config \
-  --controller-endpoint localhost:8082
+  --controller-endpoint localhost:30010
 
 # Connect with client
 uv run jmp shell --client my-client --selector example.com/board=foo

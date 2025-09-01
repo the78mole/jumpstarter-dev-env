@@ -1,5 +1,8 @@
 # Jumpstarter Server Development Environment
 
+[![Test Jumpstarter Setup](https://github.com/the78mole/jumpstarter-server/actions/workflows/test-jumpstarter-setup.yml/badge.svg)](https://github.com/the78mole/jumpstarter-server/actions/workflows/test-jumpstarter-setup.yml)
+[![Quick Validation](https://github.com/the78mole/jumpstarter-server/actions/workflows/quick-validation.yml/badge.svg)](https://github.com/the78mole/jumpstarter-server/actions/workflows/quick-validation.yml)
+
 A complete development environment for Jumpstarter using Kubernetes (Kind) with Docker-in-Docker support.
 
 ## Features
@@ -9,6 +12,7 @@ A complete development environment for Jumpstarter using Kubernetes (Kind) with 
 - 🎯 **Auto-installation** of Jumpstarter via Helm
 - 🔧 **VS Code DevContainer** with all tools pre-installed
 - 🌐 **Direct localhost access** to all services
+- 🤖 **Automated CI/CD** with GitHub Actions and Robot Framework tests
 
 ## Quick Start
 
@@ -16,8 +20,8 @@ A complete development environment for Jumpstarter using Kubernetes (Kind) with 
 
 1. Open this repository in VS Code
 2. Click "Reopen in Container" when prompted
-3. Wait for automatic setup to complete
-4. Test with: `./scripts/test.sh`
+3. After DevContainer starts, run: `make dev`
+4. Test with: `make test-robot`
 
 ### Option 2: Manual Setup
 
@@ -38,38 +42,48 @@ The DevContainer includes all necessary tools:
 - ✅ **kubectl** (Latest stable)
 - ✅ **Helm** (Latest version)
 - ✅ **Kind** (v0.20.0)
-- ✅ **k9s** (Kubernetes Dashboard)
+- ✅ **UV** (Python package manager)
+- ✅ **Python 3.11** with Jumpstarter dependencies
+- ✅ **Robot Framework** for integration testing
 - ✅ **Network tools** (netcat, telnet)
 - ✅ **JSON tools** (jq)
 
 ## Service Access
 
-With Docker-in-Docker, all services are directly accessible:
+After running `make dev`, services are accessible via NodePorts:
 
-- 🌐 **Web Interface**: http://localhost:5080
-- 🔗 **GRPC Controller**: localhost:8082
-- 🔗 **GRPC Router**: localhost:8083
+- 🔗 **GRPC Controller**: localhost:30010 (NodePort)
+- 🔗 **GRPC Router**: localhost:30011 (NodePort)
+- 🌐 **Ingress Controller**: Available inside Kind cluster
 - 📊 **k9s Dashboard**: Run `k9s` in terminal
+
+> **Note**: In DevContainer environments, direct port mapping may have limitations. Services are guaranteed accessible via kubectl port-forward or from within the Kind cluster.
 
 ## Project Structure
 
 ```
 jumpstarter-server/
 ├── .devcontainer/         # DevContainer configuration
-│   ├── devcontainer.json # Docker-in-Docker + Python 3.12
+│   ├── devcontainer.json # Docker-in-Docker + Python + UV
 │   ├── Dockerfile        # Custom container with tools
-│   ├── features/uv/      # Custom uv package manager feature
 │   └── setup-dind.sh     # Automatic setup script
+├── .github/workflows/    # CI/CD automation
+│   ├── test-jumpstarter-setup.yml # Full integration tests
+│   └── quick-validation.yml # Fast syntax validation
 ├── .vscode/              # VS Code settings
 ├── scripts/              # Utility scripts
-│   ├── test.sh          # Comprehensive test suite
+│   ├── welcome.sh        # DevContainer welcome message
 │   └── fix-vscode-kubectl.sh # kubectl troubleshooting
+├── tests/robot/          # Robot Framework integration tests
+│   ├── jumpstarter_integration.robot # Test suite
+│   ├── keywords/         # Custom Robot Framework keywords
+│   └── resources/        # Test resources and configurations
 ├── examples/             # Python examples and exporters
 │   ├── create_exporter.py # Distributed mode example
 │   └── example-distributed.yaml # Exporter configuration
-├── logs/                 # Log files (gitignored)
 ├── kind-config.yaml      # Kind cluster configuration
-├── pyproject.toml        # Python dependencies (uv)
+├── pyproject.toml        # Python dependencies (UV managed)
+├── uv.lock              # UV lockfile for reproducible builds
 ├── Makefile              # Development commands
 ├── DOCKER-IN-DOCKER.md  # Setup documentation
 └── README.md            # This file
@@ -98,17 +112,22 @@ make run-exporter     # Start the exporter (foreground)
 make client-shell     # Connect to exporter
 make python-shell     # Python REPL with Jumpstarter
 
+# Testing & Quality Assurance
+make test-robot       # Run Robot Framework integration tests
+make test-robot-quick # Validate Robot Framework tests (dry-run)
+
 # Troubleshooting
 make troubleshoot     # Fix kubectl/VS Code issues
-make k9s              # Kubernetes dashboard
+make k9s              # Kubernetes dashboard (jumpstarter-lab namespace)
+make k9s-all          # Kubernetes dashboard (all namespaces)
 ```
 
 ## Python Development
 
-The project includes Python 3.12 with uv package manager for Jumpstarter development:
+The project uses **UV** for modern Python dependency management with Python 3.11:
 
 ```bash
-# Setup Python environment
+# Setup Python environment (automatic with make dev)
 make python-setup
 
 # Create and test an exporter
@@ -118,6 +137,8 @@ make client-shell     # In another terminal
 
 # Direct CLI usage
 uv run jmp --help
+uv run jmp admin --help
+uv run jmp admin get --help        # List available objects
 uv run jmp admin create exporter my-exporter
 ```
 
@@ -155,6 +176,40 @@ kubectl get ingress -n jumpstarter-lab
 ### Jumpstarter not starting
 1. Check pods: `kubectl get pods -n jumpstarter-lab`
 2. Check logs: `kubectl logs -n jumpstarter-lab -l app.kubernetes.io/name=jumpstarter-controller`
+
+## Testing & CI/CD
+
+This project includes comprehensive automated testing:
+
+### 🤖 **Robot Framework Integration Tests**
+```bash
+# Run tests locally via Makefile
+make test-robot
+
+# Or run directly with UV
+uv run robot --outputdir tests/robot/results tests/robot/jumpstarter_integration.robot
+```
+
+### 🔄 **GitHub Actions Workflows**
+- **Full Integration Test** (`.github/workflows/test-jumpstarter-setup.yml`)
+  - Sets up complete Kind cluster with Jumpstarter
+  - Tests mock exporter creation and connectivity
+  - Runs Robot Framework test suite
+  - 30-minute timeout for comprehensive testing
+  
+- **Quick Validation** (`.github/workflows/quick-validation.yml`)
+  - Validates YAML, Makefile, and Python syntax
+  - Dry-run Robot Framework tests
+  - Fast feedback for pull requests
+
+### 📊 **Test Coverage**
+The Robot Framework tests cover:
+- ✅ Web interface accessibility
+- ✅ GRPC port connectivity (Controller & Router)
+- ✅ DNS resolution for nip.io domains  
+- ✅ Mock exporter creation and registration
+- ✅ CLI command functionality
+- ✅ Kubernetes pod health
 
 ## Architecture
 

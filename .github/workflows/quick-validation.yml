@@ -1,0 +1,61 @@
+name: Test - Quick Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quick-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Validate YAML files
+      run: |
+        # Check kind-config.yaml
+        python -c "import yaml; yaml.safe_load(open('kind-config.yaml'))"
+        echo "✅ kind-config.yaml is valid"
+        
+        # Check GitHub workflows
+        for file in .github/workflows/*.yml; do
+          python -c "import yaml; yaml.safe_load(open('$file'))"
+          echo "✅ $file is valid"
+        done
+
+    - name: Validate Makefile
+      run: |
+        make help > /dev/null
+        echo "✅ Makefile is valid"
+
+    - name: Setup Python and uv
+      run: |
+        # Install uv
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        source ~/.cargo/env
+        echo "~/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Validate Python and dependencies
+      run: |
+        source ~/.cargo/env
+        
+        # Check pyproject.toml syntax
+        uv sync --dry-run
+        echo "✅ pyproject.toml is valid"
+        
+        # Check Python files syntax  
+        uv run python -m py_compile examples/create_exporter.py
+        echo "✅ Python files are valid"
+
+    - name: Validate Robot Framework tests
+      run: |
+        source ~/.cargo/env
+        
+        # Install Robot Framework via uv
+        uv sync
+        uv run robot --dryrun tests/robot/jumpstarter_integration.robot
+        echo "✅ Robot Framework tests are valid"

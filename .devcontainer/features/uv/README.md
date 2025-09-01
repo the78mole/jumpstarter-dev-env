@@ -30,3 +30,5 @@ This DevContainer feature installs [uv](https://docs.astral.sh/uv/), an extremel
 - This feature should be installed after the Python feature
 - uv provides faster dependency resolution and installation compared to pip
 - Compatible with existing pip and requirements.txt workflows
+- Supports modern Python packaging with pyproject.toml and dependency groups
+- Excellent for managing virtual environments and development dependencies

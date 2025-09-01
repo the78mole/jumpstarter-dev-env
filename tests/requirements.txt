@@ -1,0 +1,18 @@
+# Robot Framework Core
+robotframework==6.1.1
+
+# Robot Framework Libraries
+robotframework-requests==0.9.6
+robotframework-seleniumlibrary==6.2.0
+robotframework-kubernetes==1.2.0
+
+# Additional testing libraries
+requests==2.31.0
+selenium==4.15.0
+
+# Kubernetes Python client
+kubernetes==27.2.0
+
+# Utilities
+pyyaml==6.0.1
+urllib3==2.0.7

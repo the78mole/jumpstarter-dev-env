@@ -1,37 +1,40 @@
 {
   "name": "Jumpstarter Server Dev",
   "dockerFile": "Dockerfile",
-  "forwardPorts": [8082, 8083, 5080, 5443],
+  "forwardPorts": [8080, 8081, 80, 443],
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "version": "latest",
       "helm": "latest",
-      "minikube": "none"
+      "minikube": "latest"
     },
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.12",
-      "installTools": true,
-      "optimize": true
+      "version": "3.11"
     },
-    "./features/uv": {
-      "version": "latest"
-    }
+    "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {}
   },
-  "postCreateCommand": "bash .devcontainer/setup-dind.sh",
-  "postStartCommand": "kubectl version --client || echo 'kubectl will be available after container rebuild'",
+  "postCreateCommand": "bash scripts/welcome.sh",
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-kubernetes-tools.vscode-kubernetes-tools",
         "redhat.vscode-yaml",
-        "ms-vscode.vscode-json"
+        "ms-vscode.vscode-json",
+        "robocorp.robotframework-lsp",
+        "ms-python.python",
+        "ms-python.flake8"
       ],
       "settings": {
-        "vs-kubernetes.kubectl-path": "/usr/local/bin/kubectl",
-        "vs-kubernetes.helm-path": "/usr/local/bin/helm",
-        "kubernetes.kubectl-path": "/usr/local/bin/kubectl",
-        "kubernetes.helm-path": "/usr/local/bin/helm"
+        "vs-kubernetes": {
+          "vs-kubernetes.kubectl-path": "/usr/bin/kubectl",
+          "vs-kubernetes.helm-path": "/usr/bin/helm"
+        },
+        "kubernetes.kubectlPath": "/usr/bin/kubectl",
+        "kubernetes.helmPath": "/usr/bin/helm"
       }
     }
   }

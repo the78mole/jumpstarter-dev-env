@@ -9,15 +9,19 @@ RUN apt-get update && apt-get install -y \
     iputils-ping \
     dnsutils \
     net-tools \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# kubectl installieren
+# kubectl systemweit installieren (/usr/bin/)
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
     && chmod +x kubectl \
-    && mv kubectl /usr/local/bin/kubectl
+    && mv kubectl /usr/bin/kubectl \
+    && ln -sf /usr/bin/kubectl /usr/local/bin/kubectl
 
-# Helm installieren
-RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# Helm systemweit installieren (/usr/bin/)
+RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash \
+    && mv /usr/local/bin/helm /usr/bin/helm \
+    && ln -sf /usr/bin/helm /usr/local/bin/helm
 
 # Kind installieren
 RUN curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 \
@@ -29,3 +33,10 @@ RUN curl -Lo ./k9s.tar.gz https://github.com/derailed/k9s/releases/latest/downlo
     && tar -xzf k9s.tar.gz \
     && mv k9s /usr/local/bin/k9s \
     && rm k9s.tar.gz
+
+# Robot Framework als globale Installation
+RUN pip3 install --no-cache-dir --break-system-packages \
+    robotframework==7.0 \
+    robotframework-requests==0.9.6 \
+    robotframework-browser==18.6.3 \
+    && rm -rf /root/.cache/pip
