@@ -8,7 +8,6 @@ using the controller service API with mock drivers for testing.
 
 import subprocess
 import sys
-import os
 import yaml
 from pathlib import Path
 
@@ -121,7 +120,7 @@ def update_exporter_config(config_path):
             yaml.dump(config, f, default_flow_style=False, indent=2)
             
         print("✅ Configuration updated with mock drivers")
-        print(f"📄 Config content:")
+        print("📄 Config content:")
         print("=" * 50)
         with open(config_path, 'r') as f:
             print(f.read())

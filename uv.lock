@@ -574,15 +574,17 @@ dependencies = [
     { name = "jumpstarter-driver-power" },
 ]
 
+[package.optional-dependencies]
+testing = [
+    { name = "robotframework" },
+    { name = "robotframework-requests" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "black" },
     { name = "pytest" },
     { name = "ruff" },
-]
-testing = [
-    { name = "robotframework" },
-    { name = "robotframework-requests" },
 ]
 
 [package.metadata]
@@ -590,17 +592,16 @@ requires-dist = [
     { name = "jumpstarter-cli" },
     { name = "jumpstarter-driver-opendal" },
     { name = "jumpstarter-driver-power" },
+    { name = "robotframework", marker = "extra == 'testing'", specifier = ">=7.0" },
+    { name = "robotframework-requests", marker = "extra == 'testing'", specifier = ">=0.9.6" },
 ]
+provides-extras = ["testing"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "black" },
     { name = "pytest" },
     { name = "ruff" },
-]
-testing = [
-    { name = "robotframework", specifier = ">=7.0" },
-    { name = "robotframework-requests", specifier = ">=0.9.6" },
 ]
 
 [[package]]

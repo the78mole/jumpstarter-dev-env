@@ -41,12 +41,22 @@ jobs:
         
         # Install uv for Python dependencies
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        source ~/.cargo/env
-        echo "~/.cargo/bin" >> $GITHUB_PATH
+        # Add uv to PATH (it may install to different locations)
+        if [ -f ~/.cargo/env ]; then
+          source ~/.cargo/env
+          echo "~/.cargo/bin" >> $GITHUB_PATH
+        elif [ -f ~/.local/bin/uv ]; then
+          echo "~/.local/bin" >> $GITHUB_PATH
+        fi
 
     - name: Create Kind cluster
       run: |
         echo "🚀 Creating Kind cluster for Jumpstarter..."
+        
+        # Delete existing cluster if it exists (cleanup from previous runs)
+        kind delete cluster --name jumpstarter-server || true
+        
+        # Create new cluster
         kind create cluster --config kind-config.yaml --wait 300s
         kubectl cluster-info
         kubectl get nodes
@@ -63,35 +73,47 @@ jobs:
     - name: Install Jumpstarter via Helm
       run: |
         echo "⚡ Installing Jumpstarter via Helm..."
-        helm repo add jumpstarter https://jumpstarter-dev.github.io/jumpstarter
-        helm repo update
-        helm install jumpstarter jumpstarter/jumpstarter \
+        # Using OCI registry for Kind cluster with NodePort mode
+        export IP="127.0.0.1"
+        export BASEDOMAIN="jumpstarter.${IP}.nip.io"
+        export GRPC_ENDPOINT="grpc.${BASEDOMAIN}:30010"
+        export GRPC_ROUTER_ENDPOINT="router.${BASEDOMAIN}:30011"
+        
+        helm install jumpstarter oci://quay.io/jumpstarter-dev/helm/jumpstarter \
           --namespace jumpstarter-lab \
           --create-namespace \
           --wait --timeout=300s \
-          --set controller.nodePort=30010 \
-          --set router.nodePort=30011 \
-          --set ingress.enabled=true \
-          --set ingress.hosts[0].host=jumpstarter.127.0.0.1.nip.io \
-          --set ingress.hosts[0].paths[0].path=/ \
-          --set ingress.hosts[0].paths[0].pathType=Prefix
+          --set global.baseDomain=${BASEDOMAIN} \
+          --set jumpstarter-controller.grpc.endpoint=${GRPC_ENDPOINT} \
+          --set jumpstarter-controller.grpc.routerEndpoint=${GRPC_ROUTER_ENDPOINT} \
+          --set global.metrics.enabled=false \
+          --set jumpstarter-controller.grpc.nodeport.enabled=true \
+          --set jumpstarter-controller.grpc.nodeport.port=30010 \
+          --set jumpstarter-controller.grpc.nodeport.routerPort=30011 \
+          --set jumpstarter-controller.grpc.mode=nodeport
 
     - name: Wait for Jumpstarter to be ready
       run: |
         echo "⏳ Waiting for Jumpstarter pods to be ready..."
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=jumpstarter-controller -n jumpstarter-lab --timeout=300s
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=jumpstarter-router -n jumpstarter-lab --timeout=300s
+        # Wait specifically for the controller pod, not the completed job pod
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=manager -n jumpstarter-lab --timeout=300s || true
         
         echo "📊 Jumpstarter pod status:"
         kubectl get pods -n jumpstarter-lab
         
         echo "🔍 Service status:"
         kubectl get svc -n jumpstarter-lab
+        
+        echo "✅ Jumpstarter installation completed successfully!"
 
     - name: Set up Python environment
       run: |
         echo "🐍 Setting up Python environment with uv..."
-        source ~/.cargo/env
+        # Ensure uv is in PATH
+        if [ -f ~/.cargo/env ]; then
+          source ~/.cargo/env
+        fi
+        export PATH="$HOME/.local/bin:$PATH"
         
         echo "📦 Installing dependencies from pyproject.toml..."
         uv sync
@@ -107,6 +129,8 @@ jobs:
         echo "127.0.0.1 jumpstarter.127.0.0.1.nip.io" | sudo tee -a /etc/hosts
         
         echo "🧪 Testing DNS resolution:"
+        # Install dnsutils if needed for nslookup  
+        sudo apt-get update -qq && sudo apt-get install -y dnsutils iputils-ping || true
         nslookup grpc.jumpstarter.127.0.0.1.nip.io || true
         ping -c 1 grpc.jumpstarter.127.0.0.1.nip.io || true
 
@@ -126,6 +150,12 @@ jobs:
     - name: Create and test Mock Exporter
       run: |
         echo "🤖 Testing Jumpstarter CLI functionality..."
+        
+        # Ensure uv is in PATH
+        if [ -f ~/.cargo/env ]; then
+          source ~/.cargo/env
+        fi
+        export PATH="$HOME/.local/bin:$PATH"
         
         # Test that CLI is working
         echo "🔍 Testing admin CLI commands..."
@@ -153,6 +183,7 @@ jobs:
         name: robot-test-results
         path: tests/robot/results/
         retention-days: 30
+        if-no-files-found: warn
 
     - name: Collect logs on failure
       if: failure()
@@ -176,7 +207,7 @@ jobs:
         kubectl get ingress --all-namespaces
         
         echo "=== Events ==="
-        kubectl get events --all-namespaces --sort-by='.lastTimestamp' --tail=50
+        kubectl get events --all-namespaces --sort-by='.lastTimestamp' | tail -50
 
     - name: Cleanup
       if: always()

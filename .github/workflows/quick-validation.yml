@@ -17,6 +17,9 @@ jobs:
 
     - name: Validate YAML files
       run: |
+        # Install PyYAML for YAML validation
+        pip3 install PyYAML
+        
         # Check kind-config.yaml
         python -c "import yaml; yaml.safe_load(open('kind-config.yaml'))"
         echo "✅ kind-config.yaml is valid"
@@ -36,12 +39,21 @@ jobs:
       run: |
         # Install uv
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        source ~/.cargo/env
-        echo "~/.cargo/bin" >> $GITHUB_PATH
+        # Add uv to PATH (it may install to different locations)
+        if [ -f ~/.cargo/env ]; then
+          source ~/.cargo/env
+          echo "~/.cargo/bin" >> $GITHUB_PATH
+        elif [ -f ~/.local/bin/uv ]; then
+          echo "~/.local/bin" >> $GITHUB_PATH
+        fi
 
     - name: Validate Python and dependencies
       run: |
-        source ~/.cargo/env
+        # Ensure uv is in PATH
+        if [ -f ~/.cargo/env ]; then
+          source ~/.cargo/env
+        fi
+        export PATH="$HOME/.local/bin:$PATH"
         
         # Check pyproject.toml syntax
         uv sync --dry-run
@@ -53,9 +65,13 @@ jobs:
 
     - name: Validate Robot Framework tests
       run: |
-        source ~/.cargo/env
+        # Ensure uv is in PATH
+        if [ -f ~/.cargo/env ]; then
+          source ~/.cargo/env
+        fi
+        export PATH="$HOME/.local/bin:$PATH"
         
-        # Install Robot Framework via uv
-        uv sync
+        # Install Robot Framework via uv with testing group
+        uv sync --group=testing
         uv run robot --dryrun tests/robot/jumpstarter_integration.robot
         echo "✅ Robot Framework tests are valid"
