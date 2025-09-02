@@ -28,7 +28,7 @@ Test GRPC Controller Port
     Should Contain    ${result.stdout}    30010
     Log    Controller NodePort service verified: ${result.stdout}
 
-Test GRPC Router Port  
+Test GRPC Router Port
     [Documentation]    Test that GRPC router service is accessible via NodePort (CI adapted)
     [Tags]    grpc    connectivity
     ${result}=    Run Process    kubectl    get    svc    -n    jumpstarter-lab    jumpstarter-router-grpc    --no-headers
@@ -50,7 +50,7 @@ Test Mock Exporter Creation
     [Tags]    exporter    mock
     ${uuid}=    Generate Random String    8    ABCDEF0123456789
     ${exporter_name}=    Set Variable    robot-test-exporter-${uuid}
-    
+
     Log    Creating exporter: ${exporter_name}
     # Test simplified exporter creation - focus on testing if CLI works
     ${result}=    Run Process    uv    run    jmp    admin    --help    timeout=15s
@@ -97,7 +97,7 @@ Setup Test Environment
     Log    Setting up test environment...
     # Add any common setup here
 
-Teardown Test Environment  
+Teardown Test Environment
     [Documentation]    Common teardown for tests
     Log    Cleaning up test environment...
     # Add any common cleanup here

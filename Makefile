@@ -220,7 +220,7 @@ test-robot: python-setup ## Führt Robot Framework Integration Tests aus
 	fi
 	@echo "📊 Test results available in tests/robot/results/"
 
-test-robot-quick: python-setup ## Führt Robot Framework Tests im Dry-Run Modus aus  
+test-robot-quick: python-setup ## Führt Robot Framework Tests im Dry-Run Modus aus
 	@echo "🏃 Quick Robot Framework validation..."
 	@if command -v robot >/dev/null 2>&1; then \
 		echo "Using system Robot Framework..."; \
@@ -236,5 +236,5 @@ test-integration: dev test-robot ## Kompletter Integrations-Test: Setup + Robot 
 	@echo "🎯 Full integration test completed!"
 	@echo "📊 Check tests/robot/results/ for detailed test reports"
 
-ci-test: setup deploy test-robot ## CI-ähnlicher Test ohne komplettes dev setup  
+ci-test: setup deploy test-robot ## CI-ähnlicher Test ohne komplettes dev setup
 	@echo "🔄 CI-style test completed!"

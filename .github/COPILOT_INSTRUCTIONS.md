@@ -47,7 +47,7 @@ make test-robot
 ### Automatisierte Features
 
 - **Docker-in-Docker**: Über official Microsoft feature
-- **Kubernetes Tools**: kubectl, helm, kind via devcontainers feature  
+- **Kubernetes Tools**: kubectl, helm, kind via devcontainers feature
 - **Python Environment**: Python 3.11 mit UV package manager
 - **VS Code Extensions**: Kubernetes Tools, Python, Robot Framework
 
@@ -57,7 +57,7 @@ make test-robot
 # Controller (NodePort 30010)
 curl http://localhost:30010/v1/health
 
-# Router (NodePort 30011) 
+# Router (NodePort 30011)
 curl http://localhost:30011/v1/health
 
 # Kubernetes Dashboard
@@ -124,13 +124,13 @@ make test-robot
 
 # Test-Kategorien
 robot --include health tests/robot/    # Health Checks
-robot --include network tests/robot/   # Network Tests  
+robot --include network tests/robot/   # Network Tests
 robot --include cli tests/robot/       # CLI Tests
 ```
 
 **Test Coverage:**
 - Controller/Router Health Checks
-- GRPC Port Connectivity  
+- GRPC Port Connectivity
 - DNS Resolution
 - Kubernetes Pod Status
 - CLI Functionality
@@ -141,7 +141,7 @@ robot --include cli tests/robot/       # CLI Tests
 
 **Vollständige Integration** (`.github/workflows/test-jumpstarter-setup.yml`):
 - DevContainer Setup mit Docker-in-Docker
-- Kind Cluster + Jumpstarter Installation  
+- Kind Cluster + Jumpstarter Installation
 - Robot Framework Test-Ausführung
 - Artefakt-Sammlung bei Fehlern
 
@@ -196,7 +196,7 @@ kubectl describe pod <pod-name> -n jumpstarter-system
 # Test-Umgebung validieren
 make network-test
 
-# Einzelne Tests debuggen  
+# Einzelne Tests debuggen
 robot --include health --loglevel DEBUG tests/robot/
 ```
 
@@ -224,7 +224,7 @@ docker exec -it kind-control-plane crictl ps
 ```yaml
 # kind-config.yaml
 - 1x Control Plane Node (mit Ingress-fähig)
-- 2x Worker Nodes  
+- 2x Worker Nodes
 - NodePort Mappings: 30010 (Controller), 30011 (Router)
 - Ingress Controller: NGINX
 ```
@@ -274,7 +274,7 @@ Robot Framework Tests sind für DevContainer-Umgebung optimiert:
 
 ```robot
 # Angepasst für Container-Networking
-${result}=    Run Process    docker    exec    kind-control-plane    
+${result}=    Run Process    docker    exec    kind-control-plane
 ...           kubectl    get    pods    -n    jumpstarter-system
 ```
 

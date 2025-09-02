@@ -8,11 +8,11 @@ echo ""
 
 if command -v kubectl &> /dev/null; then
     echo "✅ kubectl is available at: $(which kubectl)"
-    
+
     # Teste kubectl
     if kubectl version --client &> /dev/null; then
         echo "✅ kubectl is working correctly"
-        
+
         # Test cluster connection if available
         if kubectl cluster-info &> /dev/null; then
             echo "✅ kubectl can connect to cluster"
@@ -23,7 +23,7 @@ if command -v kubectl &> /dev/null; then
     else
         echo "❌ kubectl found but not working"
     fi
-    
+
     echo ""
     echo "📋 VS Code Settings (already configured in DevContainer):"
     echo '{'
@@ -32,7 +32,7 @@ if command -v kubectl &> /dev/null; then
     echo '  "vs-kubernetes.helm-path": "/usr/bin/helm",'
     echo '  "kubernetes.helmPath": "/usr/bin/helm"'
     echo '}'
-    
+
     echo ""
     echo "🔄 To fix VS Code Kubernetes Extension:"
     echo "1. Reload VS Code Window (Ctrl+Shift+P -> 'Developer: Reload Window')"
@@ -41,7 +41,7 @@ if command -v kubectl &> /dev/null; then
     echo ""
     echo "🎯 Quick fix command:"
     echo "   Ctrl+Shift+P -> 'Developer: Reload Window'"
-    
+
 else
     echo "❌ kubectl not found in PATH"
     echo "Available in PATH:"

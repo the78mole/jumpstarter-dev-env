@@ -20,7 +20,7 @@ Das DevContainer nutzt offizielle Microsoft DevContainer Features:
 - `ghcr.io/devcontainers/features/docker-in-docker:2`
 - Vollständige Docker-Umgebung im Container
 
-### ⚓ **Kubernetes Tools**  
+### ⚓ **Kubernetes Tools**
 - `ghcr.io/devcontainers/features/kubectl-helm-minikube:1`
 - kubectl, Helm, und Minikube vorinstalliert
 
@@ -37,7 +37,7 @@ Das DevContainer nutzt offizielle Microsoft DevContainer Features:
 Das `setup-dind.sh` Script führt automatisch folgende Schritte aus:
 
 1. **Docker-Daemon prüfen**: Wartet bis Docker verfügbar ist
-2. **Kind-Cluster erstellen**: Mit `kind-config.yaml` Konfiguration  
+2. **Kind-Cluster erstellen**: Mit `kind-config.yaml` Konfiguration
 3. **NGINX Ingress installieren**: Für HTTP/HTTPS Zugriff
 4. **Jumpstarter installieren**: Via Helm Chart
 5. **Services prüfen**: NodePort-Verfügbarkeit testen
@@ -81,7 +81,7 @@ Für direkten Service-Zugriff:
 # Controller Service
 kubectl port-forward -n jumpstarter-lab svc/jumpstarter-grpc 8082:8082
 
-# Router Service  
+# Router Service
 kubectl port-forward -n jumpstarter-lab svc/jumpstarter-router-grpc 8083:8083
 ```
 

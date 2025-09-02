@@ -15,14 +15,14 @@ Setup Test Environment
     Log    Setting up test environment
     Create Session    controller    ${CONTROLLER_URL}
     Create Session    router        ${ROUTER_URL}
-    
+
     # Port-forwarding für Tests (falls nicht bereits aktiv)
     ${result}    Run Process    pgrep    -f    kubectl.*port-forward.*jumpstarter-controller
     Run Keyword If    '${result.rc}' != '0'    Start Controller Port Forward
-    
-    ${result}    Run Process    pgrep    -f    kubectl.*port-forward.*jumpstarter-router  
+
+    ${result}    Run Process    pgrep    -f    kubectl.*port-forward.*jumpstarter-router
     Run Keyword If    '${result.rc}' != '0'    Start Router Port Forward
-    
+
     Sleep    5s    # Wait for port forwarding to be ready
 
 Teardown Test Environment

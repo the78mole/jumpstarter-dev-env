@@ -5,7 +5,7 @@ description = "Jumpstarter Server Development Examples"
 requires-python = ">=3.12"
 dependencies = [
     "jumpstarter-cli",
-    "jumpstarter-driver-opendal", 
+    "jumpstarter-driver-opendal",
     "jumpstarter-driver-power",
 ]
 
@@ -18,8 +18,9 @@ testing = [
 [tool.uv]
 dev-dependencies = [
     "pytest",
-    "black", 
+    "black",
     "ruff",
+    "pre-commit",
 ]
 
 [tool.ruff]

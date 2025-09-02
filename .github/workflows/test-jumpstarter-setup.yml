@@ -15,7 +15,7 @@ jobs:
   test-jumpstarter-setup:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -30,15 +30,15 @@ jobs:
         [ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-arm64
         chmod +x ./kind
         sudo mv ./kind /usr/local/bin/kind
-        
+
         # Install kubectl
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x kubectl
         sudo mv kubectl /usr/local/bin/
-        
+
         # Install Helm
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-        
+
         # Install uv for Python dependencies
         curl -LsSf https://astral.sh/uv/install.sh | sh
         # Add uv to PATH (it may install to different locations)
@@ -52,10 +52,10 @@ jobs:
     - name: Create Kind cluster
       run: |
         echo "🚀 Creating Kind cluster for Jumpstarter..."
-        
+
         # Delete existing cluster if it exists (cleanup from previous runs)
         kind delete cluster --name jumpstarter-server || true
-        
+
         # Create new cluster
         kind create cluster --config kind-config.yaml --wait 300s
         kubectl cluster-info
@@ -78,7 +78,7 @@ jobs:
         export BASEDOMAIN="jumpstarter.${IP}.nip.io"
         export GRPC_ENDPOINT="grpc.${BASEDOMAIN}:30010"
         export GRPC_ROUTER_ENDPOINT="router.${BASEDOMAIN}:30011"
-        
+
         helm install jumpstarter oci://quay.io/jumpstarter-dev/helm/jumpstarter \
           --namespace jumpstarter-lab \
           --create-namespace \
@@ -97,13 +97,13 @@ jobs:
         echo "⏳ Waiting for Jumpstarter pods to be ready..."
         # Wait specifically for the controller pod, not the completed job pod
         kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=manager -n jumpstarter-lab --timeout=300s || true
-        
+
         echo "📊 Jumpstarter pod status:"
         kubectl get pods -n jumpstarter-lab
-        
+
         echo "🔍 Service status:"
         kubectl get svc -n jumpstarter-lab
-        
+
         echo "✅ Jumpstarter installation completed successfully!"
 
     - name: Set up Python environment
@@ -114,10 +114,10 @@ jobs:
           source ~/.cargo/env
         fi
         export PATH="$HOME/.local/bin:$PATH"
-        
+
         echo "📦 Installing dependencies from pyproject.toml..."
         uv sync
-        
+
         echo "✅ Python environment ready"
         uv run python --version
 
@@ -127,9 +127,9 @@ jobs:
         echo "127.0.0.1 grpc.jumpstarter.127.0.0.1.nip.io" | sudo tee -a /etc/hosts
         echo "127.0.0.1 router.jumpstarter.127.0.0.1.nip.io" | sudo tee -a /etc/hosts
         echo "127.0.0.1 jumpstarter.127.0.0.1.nip.io" | sudo tee -a /etc/hosts
-        
+
         echo "🧪 Testing DNS resolution:"
-        # Install dnsutils if needed for nslookup  
+        # Install dnsutils if needed for nslookup
         sudo apt-get update -qq && sudo apt-get install -y dnsutils iputils-ping || true
         nslookup grpc.jumpstarter.127.0.0.1.nip.io || true
         ping -c 1 grpc.jumpstarter.127.0.0.1.nip.io || true
@@ -137,41 +137,41 @@ jobs:
     - name: Test basic connectivity
       run: |
         echo "🔌 Testing basic Jumpstarter connectivity..."
-        
+
         # Test Kubernetes services are running
         kubectl get pods -n jumpstarter-lab
         kubectl get svc -n jumpstarter-lab
-        
+
         # Test that services have endpoints
         kubectl get endpoints -n jumpstarter-lab
-        
+
         echo "✅ Basic connectivity tests completed"
 
     - name: Create and test Mock Exporter
       run: |
         echo "🤖 Testing Jumpstarter CLI functionality..."
-        
+
         # Ensure uv is in PATH
         if [ -f ~/.cargo/env ]; then
           source ~/.cargo/env
         fi
         export PATH="$HOME/.local/bin:$PATH"
-        
+
         # Test that CLI is working
         echo "🔍 Testing admin CLI commands..."
         uv run jmp admin --help
         uv run jmp admin version
-        
+
         # Test get command (updated from deprecated 'list')
         echo "� Testing admin get commands..."
         uv run jmp admin get --help
-        
+
         echo "✅ CLI functionality verified"
 
     - name: Robot Framework Test
       run: |
         echo "🤖 Running Robot Framework integration tests..."
-        
+
         # Use the same make target as local development
         echo "🤖 Executing Robot Framework tests via Makefile..."
         make test-robot
@@ -189,23 +189,23 @@ jobs:
       if: failure()
       run: |
         echo "💥 Test failed - collecting debug information..."
-        
+
         echo "=== Kubernetes Cluster Info ==="
         kubectl cluster-info
-        
+
         echo "=== All Pods ==="
         kubectl get pods --all-namespaces
-        
+
         echo "=== Jumpstarter Pods Logs ==="
         kubectl logs -n jumpstarter-lab -l app.kubernetes.io/name=jumpstarter-controller --tail=100 || true
         kubectl logs -n jumpstarter-lab -l app.kubernetes.io/name=jumpstarter-router --tail=100 || true
-        
+
         echo "=== Services ==="
         kubectl get svc --all-namespaces
-        
+
         echo "=== Ingress ==="
         kubectl get ingress --all-namespaces
-        
+
         echo "=== Events ==="
         kubectl get events --all-namespaces --sort-by='.lastTimestamp' | tail -50
 

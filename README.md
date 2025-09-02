@@ -94,7 +94,7 @@ jumpstarter-server/
 ```bash
 # Development Environment
 make dev              # Complete setup (recommended)
-make status           # Check service status  
+make status           # Check service status
 make test             # Run connectivity tests
 
 # Service Management
@@ -196,7 +196,7 @@ uv run robot --outputdir tests/robot/results tests/robot/jumpstarter_integration
   - Tests mock exporter creation and connectivity
   - Runs Robot Framework test suite
   - 30-minute timeout for comprehensive testing
-  
+
 - **Quick Validation** (`.github/workflows/quick-validation.yml`)
   - Validates YAML, Makefile, and Python syntax
   - Dry-run Robot Framework tests
@@ -206,7 +206,7 @@ uv run robot --outputdir tests/robot/results tests/robot/jumpstarter_integration
 The Robot Framework tests cover:
 - ✅ Web interface accessibility
 - ✅ GRPC port connectivity (Controller & Router)
-- ✅ DNS resolution for nip.io domains  
+- ✅ DNS resolution for nip.io domains
 - ✅ Mock exporter creation and registration
 - ✅ CLI command functionality
 - ✅ Kubernetes pod health

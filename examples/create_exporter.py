@@ -17,10 +17,7 @@ def run_command(cmd, capture_output=True, check=True):
     print(f"🔧 Running: {' '.join(cmd)}")
     try:
         result = subprocess.run(
-            cmd, 
-            capture_output=capture_output, 
-            text=True, 
-            check=check
+            cmd, capture_output=capture_output, text=True, check=check
         )
         if capture_output:
             return result.stdout.strip()
@@ -53,25 +50,38 @@ def check_jumpstarter_service():
 def create_exporter():
     """Create a new exporter using jmp admin CLI."""
     print("🚀 Creating new exporter...")
-    
+
     exporter_name = "example-distributed"
-    
+
     try:
         # Create exporter with jmp admin CLI
         cmd = [
-            "jmp", "admin", "create", "exporter", exporter_name,
-            "--label", "example.com/board=foo",
-            "--label", "environment=development", 
+            "jmp",
+            "admin",
+            "create",
+            "exporter",
+            exporter_name,
+            "--label",
+            "example.com/board=foo",
+            "--label",
+            "environment=development",
             "--save",
             "--insecure-tls-config",
-            "--controller-endpoint", "localhost:8082"
+            "--controller-endpoint",
+            "localhost:8082",
         ]
-        
-        result = run_command(cmd, capture_output=False)
+
+        run_command(cmd, capture_output=False)
         print(f"✅ Exporter '{exporter_name}' created successfully")
-        
+
         # Check if config file was created
-        config_path = Path.home() / ".config" / "jumpstarter" / "exporters" / f"{exporter_name}.yaml"
+        config_path = (
+            Path.home()
+            / ".config"
+            / "jumpstarter"
+            / "exporters"
+            / f"{exporter_name}.yaml"
+        )
         if config_path.exists():
             print(f"📄 Configuration saved to: {config_path}")
             return config_path
@@ -84,7 +94,7 @@ def create_exporter():
             else:
                 print("⚠️  Configuration file not found in expected locations")
                 return None
-                
+
     except Exception as e:
         print(f"❌ Failed to create exporter: {e}")
         return None
@@ -95,39 +105,39 @@ def update_exporter_config(config_path):
     if not config_path or not config_path.exists():
         print("❌ Configuration file not found")
         return False
-        
+
     print(f"📝 Updating exporter configuration at {config_path}")
-    
+
     try:
         # Read existing config
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             config = yaml.safe_load(f)
-        
+
         # Add mock drivers
-        if 'export' not in config:
-            config['export'] = {}
-            
-        config['export']['storage'] = {
-            'type': 'jumpstarter_driver_opendal.driver.MockStorageMux'
+        if "export" not in config:
+            config["export"] = {}
+
+        config["export"]["storage"] = {
+            "type": "jumpstarter_driver_opendal.driver.MockStorageMux"
         }
-        
-        config['export']['power'] = {
-            'type': 'jumpstarter_driver_power.driver.MockPower'
+
+        config["export"]["power"] = {
+            "type": "jumpstarter_driver_power.driver.MockPower"
         }
-        
+
         # Write updated config
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             yaml.dump(config, f, default_flow_style=False, indent=2)
-            
+
         print("✅ Configuration updated with mock drivers")
         print("📄 Config content:")
         print("=" * 50)
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             print(f.read())
         print("=" * 50)
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ Failed to update configuration: {e}")
         return False
@@ -136,22 +146,27 @@ def update_exporter_config(config_path):
 def create_client():
     """Create a client to connect to the exporter."""
     print("👤 Creating client...")
-    
+
     client_name = "hello"
-    
+
     try:
         cmd = [
-            "jmp", "admin", "create", "client", client_name,
+            "jmp",
+            "admin",
+            "create",
+            "client",
+            client_name,
             "--save",
             "--unsafe",
             "--insecure-tls-config",
-            "--controller-endpoint", "localhost:8082"
+            "--controller-endpoint",
+            "localhost:8082",
         ]
-        
+
         run_command(cmd, capture_output=False)
         print(f"✅ Client '{client_name}' created successfully")
         return True
-        
+
     except Exception as e:
         print(f"❌ Failed to create client: {e}")
         return False
@@ -180,29 +195,29 @@ def main():
     """Main function to orchestrate exporter creation."""
     print("🚀 Jumpstarter Distributed Mode Setup")
     print("=" * 50)
-    
+
     # Check if Jumpstarter service is running
     if not check_jumpstarter_service():
         print("\n❌ Please ensure Jumpstarter service is running:")
         print("   make dev")
         sys.exit(1)
-    
+
     # Create exporter
     config_path = create_exporter()
     if not config_path:
         print("❌ Failed to create exporter")
         sys.exit(1)
-    
+
     # Update configuration
     if not update_exporter_config(config_path):
         print("❌ Failed to update exporter configuration")
         sys.exit(1)
-    
+
     # Create client
     if not create_client():
         print("❌ Failed to create client")
         sys.exit(1)
-    
+
     # Show usage instructions
     show_usage_instructions()
 

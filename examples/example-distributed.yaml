@@ -5,7 +5,7 @@ metadata:
   name: example-distributed
 endpoint: grpc.jumpstarter.127.0.0.1.nip.io:8082
 tls:
-  ca: ''
+  ca: ""
   insecure: true
 token: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MDg1Iiwic3ViIjoiZXhwb3J0ZXI6ZGVmYXVsdDpleGFtcGxlLWRpc3RyaWJ1dGVkOjU4MmE5Yjg5LTBlMTAtNGY3NC05YzJjLTUzODA1OGQ1ZDc5MiIsImF1ZCI6WyJqdW1wc3RhcnRlciJdLCJleHAiOjE3ODgyNzE1MTksImlhdCI6MTc1NjczNTUxOX0.6g65KfV3dHz_RI_3KWDGP616MoLZKxTzjnEg_ZhRlpqcNSzlrezpu6Ck8BUcXUfRfwm5fxfucNRsd2hrJbxfTg
 grpcOptions: {}

@@ -8,7 +8,7 @@ This directory contains Python examples for working with Jumpstarter in distribu
    ```bash
    # Ensure Jumpstarter is running (automatic in DevContainer)
    make dev
-   
+
    # Check services are accessible
    make network-test
    ```
@@ -17,11 +17,11 @@ This directory contains Python examples for working with Jumpstarter in distribu
    ```bash
    # Create exporter configuration
    make create-exporter
-   
+
    # Start exporter (in one terminal)
    make run-exporter
-   
-   # Connect with client (in another terminal)  
+
+   # Connect with client (in another terminal)
    make client-shell
    ```
 

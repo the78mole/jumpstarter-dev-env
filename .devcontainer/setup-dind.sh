@@ -8,7 +8,7 @@ wait_for_docker() {
     echo "⏳ Waiting for Docker daemon to be ready..."
     local max_attempts=30
     local attempt=1
-    
+
     while [ $attempt -le $max_attempts ]; do
         if docker info >/dev/null 2>&1; then
             echo "✅ Docker daemon is ready"
@@ -18,7 +18,7 @@ wait_for_docker() {
         sleep 2
         ((attempt++))
     done
-    
+
     echo "❌ Docker daemon failed to start within timeout"
     return 1
 }
@@ -28,12 +28,12 @@ wait_for_kubernetes() {
     echo "⏳ Waiting for Kubernetes cluster to be accessible..."
     local max_attempts=60
     local attempt=1
-    
+
     # Zuerst versuchen wir die kubeconfig zu reparieren
     echo "Fixing kubeconfig for DevContainer..."
     mkdir -p ~/.kube
     kind get kubeconfig --name jumpstarter-server > ~/.kube/config
-    
+
     while [ $attempt -le $max_attempts ]; do
         # Teste direkt im Kind-Container anstatt externe Verbindung
         if docker exec jumpstarter-server-control-plane kubectl get nodes >/dev/null 2>&1; then
@@ -44,7 +44,7 @@ wait_for_kubernetes() {
         sleep 3
         ((attempt++))
     done
-    
+
     echo "❌ Kubernetes cluster failed to become accessible within timeout"
     return 1
 }
@@ -86,27 +86,27 @@ docker exec jumpstarter-server-control-plane kubectl wait --for=condition=Ready 
 # Prüfen ob Jumpstarter bereits installiert ist
 if ! docker exec jumpstarter-server-control-plane kubectl get namespace jumpstarter-lab &> /dev/null; then
     echo "Installing Jumpstarter for the first time..."
-    
+
     # Ingress Controller für Kind installieren
     echo "Installing NGINX Ingress Controller for Kind..."
     docker exec jumpstarter-server-control-plane kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-    
+
     # Warten bis Ingress Controller bereit ist
     docker exec jumpstarter-server-control-plane kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
-    
+
     # Jumpstarter Installation
     echo "Installing Jumpstarter with Helm..."
     export IP="127.0.0.1"
     export BASEDOMAIN="jumpstarter.${IP}.nip.io"
     export GRPC_ENDPOINT="grpc.${BASEDOMAIN}:8082"
     export GRPC_ROUTER_ENDPOINT="router.${BASEDOMAIN}:8083"
-    
+
     docker exec jumpstarter-server-control-plane kubectl create namespace jumpstarter-lab --dry-run=client -o yaml | docker exec -i jumpstarter-server-control-plane kubectl apply -f -
-    
+
     # Installiere Helm im Kind-Container
     echo "Installing Helm in Kind container..."
     docker exec jumpstarter-server-control-plane sh -c "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
-    
+
     docker exec jumpstarter-server-control-plane helm upgrade jumpstarter --install oci://quay.io/jumpstarter-dev/helm/jumpstarter \
         --create-namespace --namespace jumpstarter-lab \
         --set global.baseDomain=${BASEDOMAIN} \
@@ -182,7 +182,7 @@ echo "Installing Jumpstarter Python dependencies..."
 if command -v uv >/dev/null 2>&1; then
     echo "Using uv to install dependencies..."
     uv sync 2>/dev/null || echo "Note: Run 'uv sync' manually after container setup"
-    
+
     echo "Installing Robot Framework testing dependencies..."
     uv sync --group testing 2>/dev/null || echo "Note: Robot Framework dependencies available after sync"
 else
