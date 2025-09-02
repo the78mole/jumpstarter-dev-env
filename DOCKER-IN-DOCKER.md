@@ -1,82 +1,82 @@
-# Docker-in-Docker Setup für Jumpstarter
+# Docker-in-Docker Setup for Jumpstarter
 
-## Problem mit Docker-outside-of-Docker
-Das ursprüngliche Setup verwendete Docker-outside-of-Docker, was zu Netzwerkproblemen führte:
-- Kind-Container laufen im Host-Docker, nicht im Dev-Container
-- Port-Mappings funktionieren nicht zwischen Dev-Container und Host
-- Services sind nicht über localhost erreichbar
+## Problem with Docker-outside-of-Docker
+The original setup used Docker-outside-of-Docker, which led to networking issues:
+- Kind containers run in host Docker, not in the dev container
+- Port mappings don't work between dev container and host
+- Services are not accessible via localhost
 
-## Lösung: Docker-in-Docker
-Die neue Konfiguration verwendet Docker-in-Docker:
-- Alle Container laufen innerhalb des Dev-Containers
-- Kubernetes Services sind über NodePorts erreichbar
-- Robuste Netzwerk-Konfiguration für DevContainer-Umgebungen
+## Solution: Docker-in-Docker
+The new configuration uses Docker-in-Docker:
+- All containers run within the dev container
+- Kubernetes services are accessible via NodePorts
+- Robust network configuration for DevContainer environments
 
 ## DevContainer Features
 
-Das DevContainer nutzt offizielle Microsoft DevContainer Features:
+The DevContainer uses official Microsoft DevContainer features:
 
 ### 🐳 **Docker-in-Docker**
 - `ghcr.io/devcontainers/features/docker-in-docker:2`
-- Vollständige Docker-Umgebung im Container
+- Complete Docker environment in container
 
 ### ⚓ **Kubernetes Tools**
 - `ghcr.io/devcontainers/features/kubectl-helm-minikube:1`
-- kubectl, Helm, und Minikube vorinstalliert
+- kubectl, Helm, and Minikube pre-installed
 
 ### 🐍 **Python 3.11**
 - `ghcr.io/devcontainers/features/python:1`
-- Moderne Python-Umgebung
+- Modern Python environment
 
 ### 📦 **UV Package Manager**
 - `ghcr.io/jsburckhardt/devcontainer-features/uv:1`
-- Schneller Python-Paketmanager von Astral
+- Fast Python package manager by Astral
 
-## Automatisches Setup
+## Automated Setup
 
-Das `setup-dind.sh` Script führt automatisch folgende Schritte aus:
+The `setup-dind.sh` script automatically performs the following steps:
 
-1. **Docker-Daemon prüfen**: Wartet bis Docker verfügbar ist
-2. **Kind-Cluster erstellen**: Mit `kind-config.yaml` Konfiguration
-3. **NGINX Ingress installieren**: Für HTTP/HTTPS Zugriff
-4. **Jumpstarter installieren**: Via Helm Chart
-5. **Services prüfen**: NodePort-Verfügbarkeit testen
-6. **Python-Umgebung**: UV sync für Dependencies
+1. **Check Docker daemon**: Waits until Docker is available
+2. **Create Kind cluster**: With `kind-config.yaml` configuration
+3. **Install NGINX Ingress**: For HTTP/HTTPS access
+4. **Install Jumpstarter**: Via Helm Chart
+5. **Check services**: Test NodePort availability
+6. **Python environment**: UV sync for dependencies
 
-## Umstellung durchführen
+## Performing the Migration
 
-### 1. Dev-Container neu erstellen
-Da die grundlegende Docker-Konfiguration geändert wurde, muss der Dev-Container neu erstellt werden:
+### 1. Recreate Dev Container
+Since the fundamental Docker configuration has changed, the dev container must be recreated:
 
-1. **Command Palette öffnen** (Ctrl+Shift+P / Cmd+Shift+P)
-2. **"Dev Containers: Rebuild Container"** ausführen
-3. Warten bis der Container neu erstellt ist (kann länger dauern)
+1. **Open Command Palette** (Ctrl+Shift+P / Cmd+Shift+P)
+2. **Execute "Dev Containers: Rebuild Container"**
+3. Wait until the container is recreated (may take longer)
 
-### 2. Automatisches Setup
-Nach dem Neustart läuft automatisch das neue Setup:
+### 2. Automatic Setup
+After restart, the new setup runs automatically:
 - `bash .devcontainer/setup-dind.sh`
-- Erstellt Kind-Cluster mit localhost-Konfiguration
-- Installiert Jumpstarter mit korrekten Port-Mappings
+- Creates Kind cluster with localhost configuration
+- Installs Jumpstarter with correct port mappings
 
-### 3. Testen
-Nach dem Setup können Sie testen:
+### 3. Testing
+After setup, you can test:
 ```bash
 ./scripts/test.sh
 ```
 
-## Service-Zugriff
+## Service Access
 
 ### NodePort Services
-Jumpstarter Services sind über Kubernetes NodePorts verfügbar:
+Jumpstarter services are available via Kubernetes NodePorts:
 - 🔗 **GRPC Controller**: localhost:30010 (NodePort)
 - 🔗 **GRPC Router**: localhost:30011 (NodePort)
 
 ### Ingress Controller
-- 🌐 **HTTP Ingress**: Läuft im Cluster (DevContainer-Limitierungen beachten)
+- 🌐 **HTTP Ingress**: Runs in cluster (consider DevContainer limitations)
 - 🔑 **Domains**: `*.jumpstarter.127.0.0.1.nip.io`
 
 ### Kubectl Port-Forward
-Für direkten Service-Zugriff:
+For direct service access:
 ```bash
 # Controller Service
 kubectl port-forward -n jumpstarter-lab svc/jumpstarter-grpc 8082:8082
@@ -88,12 +88,12 @@ kubectl port-forward -n jumpstarter-lab svc/jumpstarter-router-grpc 8083:8083
 ## Testing & Validation
 
 ### Robot Framework Tests
-Vollständige Test-Suite mit 8 Tests:
+Complete test suite with 8 tests:
 ```bash
 make test-robot
 ```
 
-### Manuelle Tests
+### Manual Tests
 ```bash
 # Cluster Status
 kubectl get pods -n jumpstarter-lab
@@ -108,23 +108,23 @@ uv run jmp admin --help
 uv run jmp admin get --help
 ```
 
-## Vorteile der aktuellen Lösung
-- ✅ **Robuste Netzwerk-Konfiguration**: NodePorts funktionieren zuverlässig
-- ✅ **DevContainer-optimiert**: Realistische Erwartungen für Container-Umgebungen
-- ✅ **Vollständige Automatisierung**: Ein Befehl für komplettes Setup
-- ✅ **CI/CD Integration**: GitHub Actions mit identischer Konfiguration
-- ✅ **Umfassende Tests**: Robot Framework validiert alle Komponenten
-- ✅ **Modern Python Stack**: UV + Python 3.11 für schnelle Dependencies
+## Advantages of Current Solution
+- ✅ **Robust network configuration**: NodePorts work reliably
+- ✅ **DevContainer-optimized**: Realistic expectations for container environments
+- ✅ **Complete automation**: One command for complete setup
+- ✅ **CI/CD integration**: GitHub Actions with identical configuration
+- ✅ **Comprehensive tests**: Robot Framework validates all components
+- ✅ **Modern Python stack**: UV + Python 3.11 for fast dependencies
 
-## DevContainer-Limitierungen
-- ⚠️ **Port-Mapping**: Nicht alle Host-Ports funktionieren in DevContainers
-- ⚠️ **Ingress-Zugriff**: HTTP-Zugriff funktioniert hauptsächlich cluster-intern
-- ⚠️ **Netzwerk-Komplexität**: Docker-in-Docker + Kind + DevContainer
+## DevContainer Limitations
+- ⚠️ **Port mapping**: Not all host ports work in DevContainers
+- ⚠️ **Ingress access**: HTTP access works mainly cluster-internal
+- ⚠️ **Network complexity**: Docker-in-Docker + Kind + DevContainer
 
-## Lösungsansätze
-- ✅ **NodePort-Services**: Zuverlässiger Zugriff über definierte Ports
-- ✅ **kubectl exec**: Commands im Kind-Container ausführen
-- ✅ **Realistische Tests**: Prüfen was in DevContainers machbar ist
-- ✅ **Kubectl Port-Forward**: Flexibler Service-Zugriff
+## Solution Approaches
+- ✅ **NodePort services**: Reliable access via defined ports
+- ✅ **kubectl exec**: Execute commands in Kind container
+- ✅ **Realistic tests**: Check what's feasible in DevContainers
+- ✅ **Kubectl port-forward**: Flexible service access
 
-Diese Konfiguration bietet eine stabile, reproduzierbare Entwicklungsumgebung für Jumpstarter.
+This configuration provides a stable, reproducible development environment for Jumpstarter.

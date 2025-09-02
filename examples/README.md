@@ -5,6 +5,7 @@ This directory contains Python examples for working with Jumpstarter in distribu
 ## Quick Start
 
 1. **Setup development environment:**
+
    ```bash
    # Ensure Jumpstarter is running (automatic in DevContainer)
    make dev
@@ -14,6 +15,7 @@ This directory contains Python examples for working with Jumpstarter in distribu
    ```
 
 2. **Create and test an exporter:**
+
    ```bash
    # Create exporter configuration
    make create-exporter
@@ -26,6 +28,7 @@ This directory contains Python examples for working with Jumpstarter in distribu
    ```
 
 3. **Test the connection in client shell:**
+
    ```python
    # In the client shell, test mock drivers:
    power.get()         # Test power driver

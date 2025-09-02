@@ -1,57 +1,57 @@
 # Jumpstarter DevContainer Setup
 
-Diese Anweisungen beschreiben das automatisierte DevContainer-Setup für Jumpstarter mit Kind (Kubernetes in Docker), basierend auf Helm Charts und modernen DevContainer-Features.
+These instructions describe the automated DevContainer setup for Jumpstarter with Kind (Kubernetes in Docker), based on Helm Charts and modern DevContainer features.
 
-## Überblick
+## Overview
 
-Der jumpstarter-server ist eine vollständig automatisierte Kubernetes-Entwicklungsumgebung mit:
+The jumpstarter-server is a fully automated Kubernetes development environment with:
 
-- **Kind Cluster**: 3-Node Kubernetes Cluster mit Ingress Controller
-- **Jumpstarter Services**: Controller und Router via Helm Chart deployment
-- **DevContainer**: Docker-in-Docker mit automatisiertem Setup
-- **UV Package Manager**: Python 3.11 Umgebung mit modernem Dependency Management
-- **Robot Framework**: Umfassende Integrationstests
+- **Kind Cluster**: 3-node Kubernetes cluster with Ingress Controller
+- **Jumpstarter Services**: Controller and Router via Helm Chart deployment
+- **DevContainer**: Docker-in-Docker with automated setup
+- **UV Package Manager**: Python 3.11 environment with modern dependency management
+- **Robot Framework**: Comprehensive integration tests
 
-## Schnellstart
+## Quick Start
 
-### 1. DevContainer öffnen
+### 1. Open DevContainer
 
 ```bash
-# VS Code DevContainer öffnen
-# Automatisches Setup startet automatisch via setup-dind.sh
+# Open VS Code DevContainer
+# Automatic setup starts automatically via setup-dind.sh
 ```
 
-### 2. Services überprüfen
+### 2. Check Services
 
 ```bash
-# Alle Services testen
+# Test all services
 make network-test
 
-# Services manuell überprüfen
+# Check services manually
 kubectl get pods -n jumpstarter-system
 kubectl get svc -n jumpstarter-system
 ```
 
-### 3. Jumpstarter verwenden
+### 3. Use Jumpstarter
 
 ```bash
-# Beispiel-Exporter erstellen
+# Create example exporter
 make create-exporter
 
-# Tests ausführen
+# Run tests
 make test-robot
 ```
 
-## DevContainer Architektur
+## DevContainer Architecture
 
-### Automatisierte Features
+### Automated Features
 
-- **Docker-in-Docker**: Über official Microsoft feature
+- **Docker-in-Docker**: Via official Microsoft feature
 - **Kubernetes Tools**: kubectl, helm, kind via devcontainers feature
-- **Python Environment**: Python 3.11 mit UV package manager
+- **Python Environment**: Python 3.11 with UV package manager
 - **VS Code Extensions**: Kubernetes Tools, Python, Robot Framework
 
-### Service Zugriff
+### Service Access
 
 ```bash
 # Controller (NodePort 30010)
@@ -64,65 +64,65 @@ curl http://localhost:30011/v1/health
 kubectl port-forward svc/kubernetes-dashboard 8080:80 -n kubernetes-dashboard
 ```
 
-## Automatisiertes Setup
+## Automated Setup
 
 ### .devcontainer/setup-dind.sh
 
-Das Setup-Script führt folgende Schritte automatisch aus:
+The setup script automatically performs the following steps:
 
-1. **Docker-in-Docker Konfiguration**
-2. **Kind Cluster Erstellung** (3 Nodes + Ingress)
+1. **Docker-in-Docker Configuration**
+2. **Kind Cluster Creation** (3 nodes + Ingress)
 3. **Jumpstarter Helm Installation**
-4. **Python Environment Setup** mit UV
-5. **Service Validierung**
+4. **Python Environment Setup** with UV
+5. **Service Validation**
 
-### Konfigurationsdateien
+### Configuration Files
 
 ```text
 .devcontainer/
-├── devcontainer.json          # DevContainer Konfiguration
-├── setup-dind.sh             # Automatisiertes Setup
+├── devcontainer.json          # DevContainer Configuration
+├── setup-dind.sh             # Automated Setup
 └── features/
     └── uv/                    # UV Package Manager Feature
 
-kind-config.yaml               # Kind Cluster Konfiguration
+kind-config.yaml               # Kind Cluster Configuration
 pyproject.toml                 # Python Dependencies (UV)
 uv.lock                        # Dependency Lock File
 ```
 
-## Entwicklung
+## Development
 
 ### Make Targets
 
 ```bash
-# Entwicklungsumgebung
+# Development environment
 make dev                       # Setup/Start Jumpstarter
 make network-test             # Service Connectivity Tests
-make logs                     # Service Logs anzeigen
+make logs                     # Show service logs
 
 # Python/UV
-make install                  # Dependencies installieren
-make shell                    # UV-managed Shell
+make install                  # Install dependencies
+make shell                    # UV-managed shell
 
 # Testing
 make test-robot              # Robot Framework Tests
-make test-robot-tags TAGS=health  # Spezifische Tests
+make test-robot-tags TAGS=health  # Specific tests
 
 # Examples
-make create-exporter         # Mock Exporter erstellen
-make run-exporter           # Exporter starten
-make client-shell           # Client Shell
+make create-exporter         # Create mock exporter
+make run-exporter           # Start exporter
+make client-shell           # Client shell
 ```
 
 ### Robot Framework Tests
 
-Umfassende Testsuite mit 8 Tests:
+Comprehensive test suite with 8 tests:
 
 ```bash
-# Alle Tests ausführen
+# Run all tests
 make test-robot
 
-# Test-Kategorien
+# Test categories
 robot --include health tests/robot/    # Health Checks
 robot --include network tests/robot/   # Network Tests
 robot --include cli tests/robot/       # CLI Tests
@@ -139,20 +139,20 @@ robot --include cli tests/robot/       # CLI Tests
 
 ### GitHub Actions Workflows
 
-**Vollständige Integration** (`.github/workflows/test-jumpstarter-setup.yml`):
-- DevContainer Setup mit Docker-in-Docker
-- Kind Cluster + Jumpstarter Installation
-- Robot Framework Test-Ausführung
-- Artefakt-Sammlung bei Fehlern
+**Complete Integration** (`.github/workflows/test-jumpstarter-setup.yml`):
+- DevContainer setup with Docker-in-Docker
+- Kind cluster + Jumpstarter installation
+- Robot Framework test execution
+- Artifact collection on failures
 
-**Schnelle Validierung** (`.github/workflows/quick-validation.yml`):
-- Syntax Checks für Python/YAML/Robot
-- Dependency Resolution Testing
-- Schnelle Smoke Tests
+**Quick Validation** (`.github/workflows/quick-validation.yml`):
+- Syntax checks for Python/YAML/Robot
+- Dependency resolution testing
+- Quick smoke tests
 
 ### UV Package Management
 
-Modernes Python Dependency Management:
+Modern Python dependency management:
 
 ```toml
 # pyproject.toml
@@ -164,75 +164,75 @@ dev-dependencies = ["jumpstarter"]
 ```
 
 ```bash
-# UV Befehle
-uv sync                      # Dependencies installieren
-uv run python script.py     # Python mit Abhängigkeiten ausführen
+# UV commands
+uv sync                      # Install dependencies
+uv run python script.py     # Run Python with dependencies
 uv run jmp --help          # Jumpstarter CLI
 ```
 
 ## Troubleshooting
 
-### Häufige Probleme
+### Common Issues
 
-**DevContainer Setup fehlgeschlagen:**
+**DevContainer setup failed:**
 ```bash
-# Container neu erstellen
+# Recreate container
 docker system prune -f
 # VS Code: "Dev Containers: Rebuild Container"
 ```
 
-**Services nicht erreichbar:**
+**Services not accessible:**
 ```bash
-# Setup wiederholen
+# Repeat setup
 .devcontainer/setup-dind.sh
 
-# Service Status prüfen
+# Check service status
 kubectl get pods -n jumpstarter-system
 kubectl describe pod <pod-name> -n jumpstarter-system
 ```
 
-**Robot Tests fehlschlagen:**
+**Robot tests failing:**
 ```bash
-# Test-Umgebung validieren
+# Validate test environment
 make network-test
 
-# Einzelne Tests debuggen
+# Debug individual tests
 robot --include health --loglevel DEBUG tests/robot/
 ```
 
-### Debug-Befehle
+### Debug Commands
 
 ```bash
-# Cluster Status
+# Cluster status
 kubectl cluster-info
 kubectl get nodes
 kubectl get pods --all-namespaces
 
-# Jumpstarter Logs
+# Jumpstarter logs
 kubectl logs -f deployment/jumpstarter-controller -n jumpstarter-system
 kubectl logs -f deployment/jumpstarter-router -n jumpstarter-system
 
-# Docker-in-Docker Status
+# Docker-in-Docker status
 docker ps
 docker exec -it kind-control-plane crictl ps
 ```
 
-## Architektur-Details
+## Architecture Details
 
-### Kind Cluster Konfiguration
+### Kind Cluster Configuration
 
 ```yaml
 # kind-config.yaml
-- 1x Control Plane Node (mit Ingress-fähig)
+- 1x Control Plane Node (with Ingress-capable)
 - 2x Worker Nodes
-- NodePort Mappings: 30010 (Controller), 30011 (Router)
+- NodePort mappings: 30010 (Controller), 30011 (Router)
 - Ingress Controller: NGINX
 ```
 
 ### Jumpstarter Helm Chart
 
 ```bash
-# Helm Installation (automatisiert)
+# Helm installation (automated)
 helm upgrade --install jumpstarter ./helm-chart/jumpstarter \
   --namespace jumpstarter-system \
   --create-namespace \
@@ -243,7 +243,7 @@ helm upgrade --install jumpstarter ./helm-chart/jumpstarter \
 ### DevContainer Features
 
 ```json
-// devcontainer.json (Auszug)
+// devcontainer.json (excerpt)
 "features": {
   "ghcr.io/devcontainers/features/docker-in-docker:2": {},
   "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
@@ -259,26 +259,26 @@ helm upgrade --install jumpstarter ./helm-chart/jumpstarter \
 
 ```bash
 # Mock Hardware Exporter
-make create-exporter    # Erstellt Exporter mit Mock Drivers
+make create-exporter    # Creates exporter with mock drivers
 
 # Client Connection
-make client-shell       # Verbindung zu Mock Hardware
-# In Client Shell:
-power.get()            # Mock Power Driver testen
-storage.list()         # Mock Storage Driver testen
+make client-shell       # Connect to mock hardware
+# In client shell:
+power.get()            # Test mock power driver
+storage.list()         # Test mock storage driver
 ```
 
 ### CI/CD Testing
 
-Robot Framework Tests sind für DevContainer-Umgebung optimiert:
+Robot Framework tests are optimized for DevContainer environment:
 
 ```robot
-# Angepasst für Container-Networking
+# Adapted for container networking
 ${result}=    Run Process    docker    exec    kind-control-plane
 ...           kubectl    get    pods    -n    jumpstarter-system
 ```
 
-## Weiterführende Ressourcen
+## Further Resources
 
 - **Jumpstarter Documentation**: [jumpstarter.dev](https://jumpstarter.dev)
 - **DevContainer Specs**: [containers.dev](https://containers.dev)
@@ -288,4 +288,4 @@ ${result}=    Run Process    docker    exec    kind-control-plane
 
 ---
 
-Diese Dokumentation beschreibt das vollständig automatisierte DevContainer-Setup für Jumpstarter-Entwicklung mit modernen Tools und umfassenden Tests.
+This documentation describes the fully automated DevContainer setup for Jumpstarter development with modern tools and comprehensive tests.
