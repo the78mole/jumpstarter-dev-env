@@ -71,7 +71,7 @@ jobs:
         fi
         export PATH="$HOME/.local/bin:$PATH"
         
-        # Install Robot Framework via uv with testing group
-        uv sync --group=testing
+        # Install Robot Framework via uv with testing extra
+        uv sync --extra testing
         uv run robot --dryrun tests/robot/jumpstarter_integration.robot
         echo "✅ Robot Framework tests are valid"
