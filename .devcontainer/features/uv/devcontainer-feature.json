@@ -14,9 +14,17 @@
             ],
             "default": "latest",
             "description": "Version of uv to install"
+        },
+        "preCommit": {
+            "type": "string",
+            "proposals": [
+                "latest",
+                "4.0.1",
+                "3.8.0"
+            ],
+            "default": "latest",
+            "description": "Version of pre-commit to install as uv tool (use 'false' to disable)"
         }
     },
-    "installsAfter": [
-        "ghcr.io/devcontainers/features/python"
-    ]
+    "installsAfter": []
 }

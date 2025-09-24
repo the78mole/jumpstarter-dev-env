@@ -16,7 +16,7 @@
       "preCommit": "4.3.0"
     }
   },
-  "postCreateCommand": "uv tool install pre-commit && bash scripts/welcome.sh",
+  "postCreateCommand": "bash scripts/welcome.sh",
   "customizations": {
     "vscode": {
       "extensions": [
