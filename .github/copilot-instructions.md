@@ -38,10 +38,11 @@ Services run in Kubernetes namespace `jumpstarter-lab` with NodePort access:
 
 ## DevContainer Integration
 
-The DevContainer uses Docker-outside-of-Docker (not Docker-in-Docker feature) with:
-- Shared Docker socket mount: `source=/var/run/docker.sock,target=/var/run/docker.sock`
+The DevContainer uses Docker-in-Docker (with proper isolation) with:
+- Dedicated Docker daemon inside the container for better isolation
 - Automated setup via `postCreateCommand: "bash scripts/welcome.sh"`
 - Pre-configured VS Code extensions for Kubernetes, Python, and Robot Framework
+- Port forwarding for NodePorts (30010, 30011) and web interfaces
 
 ## CI/CD Workflows
 
@@ -80,6 +81,11 @@ make test-robot-quick # Validate Robot Framework tests (dry-run)
 make troubleshoot     # Fix kubectl/VS Code issues
 make k9s              # Kubernetes dashboard (jumpstarter-lab namespace)
 make k9s-all          # Kubernetes dashboard (all namespaces)
+
+# Cleanup & Maintenance
+make teardown         # Remove Jumpstarter (keep cluster)
+make clean            # Delete Kind cluster only
+make cleanup          # Complete cleanup: cluster, containers, networks, images
 ```
 
 ## Troubleshooting Conventions
@@ -89,6 +95,8 @@ make k9s-all          # Kubernetes dashboard (all namespaces)
 **DevContainer problems:** Use `make troubleshoot` which runs `scripts/fix-vscode-kubectl.sh` to fix VS Code kubectl integration issues.
 
 **Service debugging:** Use `make k9s` for namespace-scoped monitoring or `make k9s-all` for cluster-wide view.
+
+**Complete reset:** Use `make cleanup` to remove everything (cluster, containers, networks, images) and start fresh with `make dev`.
 
 ## Integration Points
 

@@ -84,6 +84,30 @@ clean: ## Löscht Kind Cluster komplett
 	kind delete cluster --name jumpstarter-server
 	@echo "✅ Cluster deleted!"
 
+cleanup: ## Räumt alles auf: Cluster, Docker-Container, Netzwerke, Images
+	@echo "🧹 Complete cleanup - removing all Jumpstarter resources..."
+	@echo "Step 1: Removing Jumpstarter installation..."
+	@if helm list -A 2>/dev/null | grep -q jumpstarter; then \
+		helm uninstall jumpstarter -n jumpstarter-lab; \
+	else \
+		echo "  No Jumpstarter Helm release found"; \
+	fi
+	@echo "Step 2: Deleting Kind cluster..."
+	@if kind get clusters 2>/dev/null | grep -q jumpstarter-server; then \
+		kind delete cluster --name jumpstarter-server; \
+	else \
+		echo "  No Kind cluster found"; \
+	fi
+	@echo "Step 3: Cleaning up Docker resources..."
+	@echo "  Removing stopped containers..."
+	@docker container prune -f 2>/dev/null || true
+	@echo "  Removing unused networks..."
+	@docker network prune -f 2>/dev/null || true
+	@echo "  Removing dangling images..."
+	@docker image prune -f 2>/dev/null || true
+	@echo "✅ Complete cleanup finished!"
+	@echo "💡 To restart: run 'make dev'"
+
 restart: teardown deploy ## Neustart der Jumpstarter Komponenten
 	@echo "🔄 Restarting Jumpstarter..."
 
