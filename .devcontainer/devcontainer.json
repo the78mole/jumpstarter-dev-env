@@ -13,6 +13,9 @@
     },
     "./features/uv": {
       "preCommit": "4.3.0"
+    },
+    "./features/jumpstarter-cli": {
+      "version": "latest"
     }
   },
   "postCreateCommand": "bash scripts/welcome.sh",

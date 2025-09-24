@@ -1,0 +1,20 @@
+{
+    "id": "jumpstarter-cli",
+    "version": "1.0.0",
+    "name": "Jumpstarter CLI",
+    "description": "Installs Jumpstarter CLI (jmp and j commands) as global tools via uv",
+    "documentationURL": "https://github.com/jumpstarter-dev/jumpstarter",
+    "options": {
+        "version": {
+            "type": "string",
+            "proposals": [
+                "latest"
+            ],
+            "default": "latest",
+            "description": "Version of jumpstarter-cli to install"
+        }
+    },
+    "installsAfter": [
+        "./features/uv"
+    ]
+}
