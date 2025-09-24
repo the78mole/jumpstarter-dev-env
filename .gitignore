@@ -81,3 +81,4 @@ robot.conf
 *.bak
 *.backup
 .cache/
+NOTES.md

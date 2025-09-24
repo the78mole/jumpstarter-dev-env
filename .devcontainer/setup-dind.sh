@@ -235,6 +235,18 @@ if command -v uv >/dev/null 2>&1; then
 
     echo "Installing Robot Framework testing dependencies..."
     uv sync --group testing 2>/dev/null || echo "Note: Robot Framework dependencies available after sync"
+
+    echo "Installing Jumpstarter CLI tools..."
+    # Install jumpstarter-cli as a uv tool for global access
+    if uv tool install jumpstarter-cli 2>/dev/null; then
+        echo "✅ Jumpstarter CLI installed globally: jmp command available"
+        # Verify installation
+        if command -v jmp >/dev/null 2>&1; then
+            jmp --version 2>/dev/null || echo "jmp installed successfully"
+        fi
+    else
+        echo "⚠️ Failed to install Jumpstarter CLI globally - will be available via 'uv run jmp'"
+    fi
 else
     echo "⚠️ uv not found - should be installed via DevContainer feature"
     echo "Note: Rebuild container to install uv via DevContainer feature"
@@ -253,9 +265,16 @@ else
 fi
 
 echo ""
+echo "=== Jumpstarter CLI Access ==="
+echo "✅ jmp command available directly via uv tool install"
+echo "Usage: jmp shell --client hello --selector environment=dev"
+echo "Short: j shell --client hello --selector environment=dev"
+
+echo ""
 echo "If ports are not accessible, you may need to restart the dev container"
 echo "for Docker-in-Docker to take effect."
 echo ""
 echo "To check logs:"
-echo "  docker exec jumpstarter-server-control-plane kubectl logs -n jumpstarter-lab -l app.kubernetes.io/name=jumpstarter-controller"
+echo "  kubectl logs -n jumpstarter-lab -l app.kubernetes.io/name=jumpstarter-controller"
+echo "  kubectl logs -n jumpstarter-lab -l app.kubernetes.io/name=jumpstarter-router"
 echo "  docker exec jumpstarter-server-control-plane kubectl logs -n jumpstarter-lab -l app.kubernetes.io/name=jumpstarter-router"

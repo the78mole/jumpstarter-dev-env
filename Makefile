@@ -44,9 +44,11 @@ status: ## Zeigt Status aller Pods und Services an
 	kubectl get svc -n jumpstarter-lab
 	@echo ""
 	@echo "🌐 Access URLs:"
-	@echo "  Web Interface:    http://localhost:5080"
-	@echo "  GRPC Controller:  localhost:8082"
-	@echo "  GRPC Router:      localhost:8083"
+	@echo "  HTTP Interface:   http://localhost:5080 (not used by browser)"
+	@echo "  GRPC Controller:  localhost:8082 (NodePort 30010)"
+	@echo "  GRPC Router:      localhost:8083 (NodePort 30011)"
+	@echo ""
+	@echo "ℹ️  Note: Use 'jmp shell --client <name>' to interact with exporters"
 
 logs: ## Zeigt aktuelle Logs der Jumpstarter Pods an
 	@echo "📋 Recent Jumpstarter Logs:"
@@ -135,7 +137,7 @@ python-setup: ## Installiert Python Dependencies mit uv
 	@echo "🐍 Setting up Python environment..."
 	@if command -v uv >/dev/null 2>&1; then \
 		echo "Installing dependencies with uv..."; \
-		export PATH="$$HOME/.local/bin:$$PATH" && uv pip install jumpstarter-cli jumpstarter-driver-opendal jumpstarter-driver-power jumpstarter-driver-composite; \
+		uv pip install jumpstarter-cli jumpstarter-driver-opendal jumpstarter-driver-power jumpstarter-driver-composite; \
 		echo "✅ Python environment ready!"; \
 		echo "💡 Usage:"; \
 		echo "  make create-exporter"; \
@@ -149,49 +151,49 @@ python-setup: ## Installiert Python Dependencies mit uv
 create-exporter: ## Erstellt einen Beispiel-Exporter für Distributed Mode
 	@echo "📦 Creating example exporter..."
 	@mkdir -p ~/.config/jumpstarter/exporters
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin create exporter example-distributed --label environment=dev --save --insecure-tls-config --nointeractive --out ~/.config/jumpstarter/exporters/example-distributed.yaml 2>/dev/null || echo "Exporter may already exist"
+	jmp admin create exporter example-distributed --label environment=dev --save --insecure-tls-config --nointeractive --out ~/.config/jumpstarter/exporters/example-distributed.yaml 2>/dev/null || echo "Exporter may already exist"
 	@cp examples/example-distributed.yaml ~/.config/jumpstarter/exporters/ 2>/dev/null || true
 	@echo "✅ Exporter created: ~/.config/jumpstarter/exporters/example-distributed.yaml"
 
 run-exporter: ## Startet den Beispiel-Exporter (Vordergrund)
 	@echo "🚀 Starting exporter..."
 	@echo "Note: This will run in foreground. Use Ctrl+C to stop."
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp run --exporter-config ~/.config/jumpstarter/exporters/example-distributed.yaml
+	jmp run --exporter-config ~/.config/jumpstarter/exporters/example-distributed.yaml
 
 create-client: ## Erstellt einen Client für den Exporter
 	@echo "👤 Creating client..."
 	@mkdir -p ~/.config/jumpstarter/clients
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin create client hello --save --unsafe --insecure-tls-config --nointeractive --out ~/.config/jumpstarter/clients/hello.yaml 2>/dev/null || echo "Client may already exist"
+	jmp admin create client hello --save --unsafe --insecure-tls-config --nointeractive --out ~/.config/jumpstarter/clients/hello.yaml 2>/dev/null || echo "Client may already exist"
 	@echo "✅ Client created: ~/.config/jumpstarter/clients/hello.yaml"
 
 exporter-shell: ## Startet eine Shell zum Exporter
 	@echo "🐚 Starting exporter shell..."
 	@echo "Note: Make sure the exporter is running first (make run-exporter)"
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp shell --client hello --selector environment=dev
+	jmp shell --client hello --selector environment=dev
 
 python-shell: ## Startet eine Python Shell mit Jumpstarter
 	@echo "🐍 Starting Python shell with Jumpstarter..."
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run python
+	uv run python
 
 list-exporters: ## Zeigt alle aktiven Exporter an
 	@echo "📋 Active Exporters:"
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin get exporter
+	jmp admin get exporter
 
 list-clients: ## Zeigt alle aktiven Clients an
 	@echo "👥 Active Clients:"
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin get client
+	jmp admin get client
 
 list-devices: ## Zeigt alle verfügbaren Devices an
 	@echo "🔌 Available Devices:"
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin get exporter --devices
+	jmp admin get exporter --devices
 
 show-exporter: ## Zeigt Details zum Beispiel-Exporter an
 	@echo "🔍 Exporter Details:"
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin get exporter example-distributed -o yaml
+	jmp admin get exporter example-distributed -o yaml
 
 show-client: ## Zeigt Details zum Hello-Client an
 	@echo "🔍 Client Details:"
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin get client hello -o yaml
+	jmp admin get client hello -o yaml
 
 jumpstarter-status: ## Zeigt Status aller Jumpstarter Komponenten an
 	@echo "🌐 Jumpstarter Cluster Status:"
@@ -225,11 +227,11 @@ test-exporter-workflow: ## Testet den kompletten Exporter-Workflow
 
 delete-exporter: ## Löscht den Beispiel-Exporter
 	@echo "🗑️ Deleting exporter..."
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin delete exporter example-distributed --nointeractive 2>/dev/null || echo "Exporter doesn't exist"
+	jmp admin delete exporter example-distributed --nointeractive 2>/dev/null || echo "Exporter doesn't exist"
 
 delete-client: ## Löscht den Client
 	@echo "🗑️ Deleting client..."
-	@export PATH="$$HOME/.local/bin:$$PATH" && uv run jmp admin delete client hello --nointeractive 2>/dev/null || echo "Client doesn't exist"
+	jmp admin delete client hello --nointeractive 2>/dev/null || echo "Client doesn't exist"
 
 test-robot: python-setup ## Führt Robot Framework Integration Tests aus
 	@echo "🤖 Running Robot Framework integration tests..."
@@ -239,7 +241,7 @@ test-robot: python-setup ## Führt Robot Framework Integration Tests aus
 		robot --outputdir tests/robot/results tests/robot/jumpstarter_integration.robot; \
 	else \
 		echo "Using uv Robot Framework..."; \
-		export PATH="$$HOME/.local/bin:$$PATH" && uv sync --extra testing && \
+		uv sync --extra testing && \
 		uv run robot --outputdir tests/robot/results tests/robot/jumpstarter_integration.robot; \
 	fi
 	@echo "📊 Test results available in tests/robot/results/"
@@ -251,7 +253,7 @@ test-robot-quick: python-setup ## Führt Robot Framework Tests im Dry-Run Modus 
 		robot --dryrun tests/robot/jumpstarter_integration.robot; \
 	else \
 		echo "Using uv Robot Framework..."; \
-		export PATH="$$HOME/.local/bin:$$PATH" && uv sync --extra testing && \
+		uv sync --extra testing && \
 		uv run robot --dryrun tests/robot/jumpstarter_integration.robot; \
 	fi
 	@echo "✅ Robot Framework tests validated"

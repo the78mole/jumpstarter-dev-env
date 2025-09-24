@@ -34,6 +34,14 @@ else
     exit 1
 fi
 
+# Ensure ~/.local/bin is in PATH for all users (for uv tools)
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/bash.bashrc
+
+# Also add it to vscode user's profile specifically
+if id "vscode" &>/dev/null; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/vscode/.bashrc 2>/dev/null || true
+fi
+
 # Install pre-commit as a uv tool if version is specified (not "false")
 if [ "$PRE_COMMIT_VERSION" != "false" ] && [ -n "$PRE_COMMIT_VERSION" ]; then
     echo "Installing pre-commit as uv tool (version: $PRE_COMMIT_VERSION)..."
