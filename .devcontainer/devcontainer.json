@@ -12,12 +12,11 @@
       "helm": "latest",
       "minikube": "latest"
     },
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11"
-    },
-    "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {}
+    "./features/uv": {
+      "preCommit": "4.3.0"
+    }
   },
-  "postCreateCommand": "bash scripts/welcome.sh",
+  "postCreateCommand": "uv tool install pre-commit && bash scripts/welcome.sh",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -34,7 +33,12 @@
           "vs-kubernetes.helm-path": "/usr/bin/helm"
         },
         "kubernetes.kubectlPath": "/usr/bin/kubectl",
-        "kubernetes.helmPath": "/usr/bin/helm"
+        "kubernetes.helmPath": "/usr/bin/helm",
+        "python.terminal.activateEnvironment": false,
+        "python.defaultInterpreterPath": "/usr/bin/python3",
+        "python.terminal.activateEnvInCurrentTerminal": false,
+        "python.terminal.launchArgs": [],
+        "python.pythonPath": "/usr/bin/python3"
       }
     }
   }
