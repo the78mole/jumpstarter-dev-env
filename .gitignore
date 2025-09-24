@@ -80,3 +80,4 @@ robot.conf
 *.tmp
 *.bak
 *.backup
+.cache/
