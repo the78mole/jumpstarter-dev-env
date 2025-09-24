@@ -9,12 +9,13 @@
     },
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "version": "latest",
-      "helm": "latest"
+      "helm": "latest",
+      "minikube": "none"
     },
-    "./features/uv": {
+    "ghcr.io/the78mole/devcontainer-features/uv:1": {
       "preCommit": "4.3.0"
     },
-    "./features/jumpstarter-cli": {
+    "ghcr.io/the78mole/devcontainer-features/jumpstarter-cli:1": {
       "version": "latest"
     }
   },
