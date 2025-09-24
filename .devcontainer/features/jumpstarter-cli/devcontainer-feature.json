@@ -12,6 +12,17 @@
             ],
             "default": "latest",
             "description": "Version of jumpstarter-cli to install"
+        },
+        "packageRepo": {
+            "type": "string",
+            "proposals": [
+                "jumpstarter",
+                "pypi",
+                "https://pkg.jumpstarter.dev/",
+                "https://custom-repo.example.com/simple/"
+            ],
+            "default": "jumpstarter",
+            "description": "Package repository: 'jumpstarter' (pkg.jumpstarter.dev), 'pypi', or custom URL (https://...)"
         }
     },
     "installsAfter": [
