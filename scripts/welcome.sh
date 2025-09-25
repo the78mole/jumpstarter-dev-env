@@ -3,6 +3,30 @@
 
 echo "🎯 Jumpstarter Server DevContainer Ready!"
 
+# Setup kubectl configuration
+echo "⚙️  Setting up kubectl configuration..."
+mkdir -p ~/.kube
+chmod 755 ~/.kube
+
+# Check if Kind cluster exists and setup kubeconfig
+if kind get clusters 2>/dev/null | grep -q "jumpstarter-server"; then
+    echo "🔧 Configuring kubectl for existing Kind cluster..."
+    kind get kubeconfig --name jumpstarter-server > ~/.kube/config 2>/dev/null
+    chmod 644 ~/.kube/config
+
+    # Add KUBECONFIG to bashrc if not already there
+    if ! grep -q "KUBECONFIG" ~/.bashrc 2>/dev/null; then
+        echo 'export KUBECONFIG=/home/vscode/.kube/config' >> ~/.bashrc
+    fi
+
+    # Set for current session
+    export KUBECONFIG=/home/vscode/.kube/config
+
+    echo "✅ kubectl configured for Kind cluster jumpstarter-server"
+else
+    echo "⚠️  Kind cluster 'jumpstarter-server' not found - will be created by 'make dev'"
+fi
+
 # Make jmp tools globally available
 echo "🔗 Setting up Jumpstarter CLI global access..."
 if [ -f "/workspaces/jumpstarter-dev-env/.venv/bin/jmp" ]; then
