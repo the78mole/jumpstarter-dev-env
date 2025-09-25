@@ -1,22 +1,11 @@
 {
   "name": "Jumpstarter Server Dev",
-  "dockerFile": "Dockerfile",
+  "image": "ghcr.io/the78mole/jumpstarter-dev:latest",
   "forwardPorts": [8080, 8081, 80, 443, 30010, 30011],
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "enableNonRootDocker": "true",
       "moby": "true"
-    },
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "version": "latest",
-      "helm": "latest",
-      "minikube": "none"
-    },
-    "ghcr.io/the78mole/devcontainer-features/uv:1": {
-      "preCommit": "4.3.0"
-    },
-    "ghcr.io/the78mole/devcontainer-features/jumpstarter-cli:1": {
-      "version": "latest"
     }
   },
   "postCreateCommand": "bash scripts/welcome.sh",
