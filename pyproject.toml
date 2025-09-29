@@ -2,7 +2,7 @@
 name = "jumpstarter-examples"
 version = "0.1.0"
 description = "Jumpstarter Server Development Examples"
-requires-python = ">=3.12"
+requires-python = ">=3.13.7"
 dependencies = [
     "jumpstarter-cli",
     "jumpstarter-driver-opendal",
@@ -11,8 +11,8 @@ dependencies = [
 
 [project.optional-dependencies]
 testing = [
-    "robotframework>=7.0",
-    "robotframework-requests>=0.9.6",
+    "robotframework>=7.3.2",
+    "robotframework-requests>=0.9.7",
 ]
 
 [tool.uv]
