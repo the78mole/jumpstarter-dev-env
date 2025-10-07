@@ -3,7 +3,7 @@ set -e
 
 echo "Setting up Jumpstarter Server development environment with Docker-in-Docker..."
 
-# Robuste Warte-Funktion für Docker
+# Robust wait function for Docker
 wait_for_docker() {
     echo "⏳ Waiting for Docker daemon to be ready..."
     local max_attempts=30
@@ -23,13 +23,13 @@ wait_for_docker() {
     return 1
 }
 
-# Robuste Warte-Funktion für Kubernetes
+# Robust wait function for Kubernetes
 wait_for_kubernetes() {
     echo "⏳ Waiting for Kubernetes cluster to be accessible..."
     local max_attempts=60
     local attempt=1
 
-    # Zuerst versuchen wir die kubeconfig zu reparieren
+    # First, try to fix the kubeconfig
     echo "Fixing kubeconfig for DevContainer..."
     mkdir -p ~/.kube
     kind get kubeconfig --name jumpstarter-server > ~/.kube/config
@@ -49,7 +49,7 @@ wait_for_kubernetes() {
     return 1
 }
 
-# Robuste Warte-Funktion für Jumpstarter Pods
+# Robust wait function for Jumpstarter pods
 wait_for_jumpstarter_pods() {
     echo "⏳ Waiting for Jumpstarter pods to be ready..."
     local max_attempts=20
@@ -82,7 +82,7 @@ wait_for_jumpstarter_pods() {
     return 0  # Continue anyway, don't fail the setup
 }
 
-# Warte auf Docker daemon
+# Wait for Docker daemon
 wait_for_docker
 
 echo "✅ Checking installed tools:"
@@ -92,7 +92,7 @@ echo "  Helm: $(helm version --short 2>/dev/null || echo 'helm installed')"
 echo "  Kind: $(kind version)"
 echo "  netcat: $(nc -h 2>&1 | head -1 || echo 'netcat installed')"
 
-# Kind Cluster erstellen falls nicht vorhanden
+# Create Kind cluster if not present
 if ! kind get clusters | grep -q jumpstarter-server; then
     echo "Creating kind cluster with official Jumpstarter configuration..."
     kind create cluster --config=kind-config.yaml --wait 300s
@@ -101,30 +101,30 @@ else
     echo "Kind cluster 'jumpstarter-server' already exists."
 fi
 
-# Kubectl Context setzen (auch wenn Cluster bereits existiert)
+# Set kubectl context (even if cluster already exists)
 echo "Setting kubectl context..."
 kind export kubeconfig --name jumpstarter-server
 
-# Extra Wartezeit für Cluster Stabilität
+# Extra wait time for cluster stability
 echo "Waiting for cluster to stabilize..."
 sleep 10
 
-# Warte auf Kubernetes Zugänglichkeit
+# Wait for Kubernetes accessibility
 wait_for_kubernetes
 
-# Warten bis Cluster bereit ist
+# Wait until cluster is ready
 echo "Waiting for cluster nodes to be ready..."
 docker exec jumpstarter-server-control-plane kubectl wait --for=condition=Ready nodes --all --timeout=300s
 
-# Prüfen ob Jumpstarter bereits installiert ist
+# Check if Jumpstarter is already installed
 if ! docker exec jumpstarter-server-control-plane kubectl get namespace jumpstarter-lab &> /dev/null; then
     echo "Installing Jumpstarter for the first time..."
 
-    # Ingress Controller für Kind installieren
+    # Install Ingress Controller for Kind
     echo "Installing NGINX Ingress Controller for Kind..."
     docker exec jumpstarter-server-control-plane kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
-    # Warten bis Ingress Controller bereit ist
+    # Wait until Ingress Controller is ready
     docker exec jumpstarter-server-control-plane kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
 
     # Jumpstarter Installation
@@ -149,7 +149,7 @@ if ! docker exec jumpstarter-server-control-plane kubectl get namespace jumpstar
         --set jumpstarter-controller.grpc.nodeport.enabled=true \
         --set jumpstarter-controller.grpc.mode=ingress \
         --version=0.7.0-dev-8-g83e23d3
-    # Warte auf Jumpstarter Pods nach der Installation
+    # Wait for Jumpstarter pods after installation
     echo "Waiting for Jumpstarter pods to start..."
     wait_for_jumpstarter_pods
 

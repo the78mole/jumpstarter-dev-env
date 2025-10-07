@@ -1,5 +1,5 @@
 #!/bin/bash
-# Einfaches Post-DevContainer Setup
+# Simple Post-DevContainer setup
 
 echo "🎯 Jumpstarter Server DevContainer Ready!"
 
