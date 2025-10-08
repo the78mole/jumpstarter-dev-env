@@ -1,19 +1,19 @@
 # DevContainer Configuration
 
-Diese devcontainer-Konfiguration verwendet das externe Image `ghcr.io/the78mole/jumpstarter-dev:latest`.
+This devcontainer configuration uses the external image `ghcr.io/the78mole/jumpstarter-dev:latest`.
 
-## Änderungen
+## Changes
 
-- **Dockerfile.backup**: Ursprüngliche Dockerfile-Konfiguration als Referenz
-- **devcontainer.json**: Konfiguriert für externes Image mit Docker-in-Docker Support
+- **Dockerfile.backup**: Original Dockerfile configuration as reference
+- **devcontainer.json**: Configured for external image with Docker-in-Docker support
 
-## Externe Image Features
+## External Image Features
 
-Das externe Image `ghcr.io/the78mole/jumpstarter-dev:latest` enthält bereits:
-- kubectl und Helm
+The external image `ghcr.io/the78mole/jumpstarter-dev:latest` already contains:
+- kubectl and Helm
 - uv (Python Package Manager)
 - Jumpstarter CLI
 - Robot Framework
-- Alle notwendigen Development Tools
+- All necessary development tools
 
-Nur Docker-in-Docker wird als Feature hinzugefügt, da dies zur Laufzeit benötigt wird.
+Only Docker-in-Docker is added as a feature because it is required at runtime.
