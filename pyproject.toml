@@ -2,7 +2,7 @@
 name = "jumpstarter-examples"
 version = "0.1.0"
 description = "Jumpstarter Server Development Examples"
-requires-python = ">=3.13.7"
+requires-python = ">=3.14.0"
 dependencies = [
     "jumpstarter-cli",
     "jumpstarter-driver-opendal",
