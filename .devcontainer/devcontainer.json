@@ -1,6 +1,6 @@
 {
   "name": "Jumpstarter Server Dev",
-  "image": "ghcr.io/the78mole/jumpstarter-dev:1.0.3",
+  "image": "ghcr.io/the78mole/jumpstarter-dev:1.0.5",
   "forwardPorts": [8080, 8081, 80, 443, 30010, 30011],
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
